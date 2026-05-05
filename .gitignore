@@ -1,0 +1,19 @@
+# Backend
+backend/target/
+backend/*.iml
+backend/.idea/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/cache/
+
+# Local npm cache (used when ~/.npm has permission issues)
+.npm-cache/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+*.log

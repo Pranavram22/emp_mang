@@ -1,0 +1,189 @@
+<div class="employees-screen">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h3 mb-0">Employees</h1>
+    <div class="d-flex flex-wrap gap-2">
+      @if (auth.isAdmin()) {
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="exportPdf()">Export PDF</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="exportExcel()">Export Excel</button>
+      }
+      <button type="button" class="btn btn-primary btn-sm" (click)="openCreate()">Add employee</button>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <form [formGroup]="filterForm" class="row g-2 align-items-end" (ngSubmit)="applyFilters()">
+        <div class="col-md-5">
+          <label class="form-label small mb-0">Search</label>
+          <input class="form-control form-control-sm" formControlName="q" placeholder="Username, email, name…" />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small mb-0">Department</label>
+          <input class="form-control form-control-sm" formControlName="department" placeholder="Exact match" />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small mb-0">Sort</label>
+          <select class="form-select form-select-sm" [formControl]="sortControl" (change)="onSortChange()">
+            <option value="id,asc">ID · ascending</option>
+            <option value="id,desc">ID · descending</option>
+            <option value="lastName,asc">Last name · A–Z</option>
+            <option value="lastName,desc">Last name · Z–A</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+          <button type="submit" class="btn btn-sm btn-dark flex-grow-1">Apply</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="filterForm.reset({ q: '', department: '' }); applyFilters()">
+            Reset
+          </button>
+        </div>
+      </form>
+      <p class="small text-muted mb-0 mt-2">
+        USER and ADMIN may create/edit. Only ADMIN may delete rows or export PDF / Excel (iText · Apache POI).
+      </p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>
+  }
+
+  @if (!loading()) {
+    <div class="card shadow-sm">
+      <div class="card-body table-responsive">
+        @if ((pageData()?.content?.length ?? 0) === 0) {
+          <p class="text-muted mb-0">No employees match your filters.</p>
+        } @else {
+          <table class="table table-hover table-sm align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Age</th>
+                <th>Mobile</th>
+                <th>Dept</th>
+                <th>Salary</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of pageData()!.content; track e.id) {
+                <tr>
+                  <td>{{ e.id }}</td>
+                  <td>{{ e.username }}</td>
+                  <td>{{ e.firstName }} {{ e.lastName }}</td>
+                  <td>{{ e.email }}</td>
+                  <td>{{ e.age }}</td>
+                  <td>{{ e.mobile }}</td>
+                  <td>{{ e.department || '—' }}</td>
+                  <td>{{ e.salary != null ? (e.salary | number:'1.2-2') : '—' }}</td>
+                  <td class="text-end text-nowrap">
+                    <button type="button" class="btn btn-link btn-sm py-0" (click)="openEdit(e)">Edit</button>
+                    @if (auth.isAdmin()) {
+                      <button type="button" class="btn btn-link btn-sm py-0 text-danger" (click)="deleteRow(e)">Delete</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+      @if ((pageData()?.totalPages ?? 0) > 0) {
+        <div class="card-footer bg-white d-flex flex-wrap align-items-center justify-content-between gap-2 py-3">
+          <span class="small text-muted">
+            Page {{ (pageData()?.number ?? 0) + 1 }} of {{ pageData()?.totalPages }} · {{ pageData()?.totalElements }} rows
+          </span>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="pageData()?.first">
+                <button type="button" class="page-link" (click)="prev()">Prev</button>
+              </li>
+              @for (pn of pageNumbers(); track pn) {
+                <li class="page-item" [class.active]="pn === pageData()?.number">
+                  <button type="button" class="page-link" (click)="setPage(pn)">{{ pn + 1 }}</button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="pageData()?.last">
+                <button type="button" class="page-link" (click)="next()">Next</button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal -->
+  @if (modalOpen()) {
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog" (mousedown)="backdropClick($event)">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered" (mousedown)="$event.stopPropagation()">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5">{{ editingId() === null ? 'New employee' : 'Edit employee' }}</h2>
+            <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+          </div>
+          <div class="modal-body">
+            @if (saveError()) {
+              <div class="alert alert-danger">{{ saveError() }}</div>
+            }
+            <form [formGroup]="empForm">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label">Username</label>
+                  <input class="form-control form-control-sm" formControlName="username" autocomplete="off" />
+                  @if (empForm.controls.username.invalid && empForm.controls.username.touched) {
+                    <div class="form-text text-danger">3–50 chars: letters, digits, underscore.</div>
+                  }
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control form-control-sm" formControlName="email" />
+                  @if (empForm.controls.email.invalid && empForm.controls.email.touched) {
+                    <div class="form-text text-danger">Valid email required.</div>
+                  }
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Age</label>
+                  <input type="number" class="form-control form-control-sm" formControlName="age" min="18" max="100" />
+                  @if (empForm.controls.age.invalid && empForm.controls.age.touched) {
+                    <div class="form-text text-danger">Age 18–100.</div>
+                  }
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Mobile</label>
+                  <input class="form-control form-control-sm" formControlName="mobile" maxlength="10" inputmode="numeric" />
+                  @if (empForm.controls.mobile.invalid && empForm.controls.mobile.touched) {
+                    <div class="form-text text-danger">Exactly 10 digits.</div>
+                  }
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Salary</label>
+                  <input type="number" class="form-control form-control-sm" formControlName="salary" step="0.01" min="0" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">First name</label>
+                  <input class="form-control form-control-sm" formControlName="firstName" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Last name</label>
+                  <input class="form-control form-control-sm" formControlName="lastName" />
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Department</label>
+                  <input class="form-control form-control-sm" formControlName="department" />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" (click)="save()">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+  }
+</div>

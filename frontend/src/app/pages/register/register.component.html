@@ -1,0 +1,46 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-4 text-center">Sign up</h1>
+        <p class="small text-muted text-center">New accounts have the USER role.</p>
+
+        @if (errorMsg()) {
+          <div class="alert alert-danger">{{ errorMsg() }}</div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="ru">Username</label>
+            <input id="ru" class="form-control" formControlName="username" autocomplete="username" />
+            @if (form.controls.username.invalid && form.controls.username.touched) {
+              <div class="form-text text-danger">3–50 characters: letters, digits, underscore.</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="re">Email</label>
+            <input id="re" type="email" class="form-control" formControlName="email" autocomplete="email" />
+            @if (form.controls.email.invalid && form.controls.email.touched) {
+              <div class="form-text text-danger">Enter a valid email.</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="rp">Password</label>
+            <input id="rp" type="password" class="form-control" formControlName="password" autocomplete="new-password" />
+            @if (form.controls.password.invalid && form.controls.password.touched) {
+              <div class="form-text text-danger">At least 6 characters.</div>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 mb-2">Create account</button>
+          <p class="small text-muted text-center mb-0">
+            Already have an account?
+            <a routerLink="/login">Log in</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

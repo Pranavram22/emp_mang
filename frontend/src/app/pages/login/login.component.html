@@ -1,0 +1,39 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-4 text-center">Log in</h1>
+
+        @if (errorMsg()) {
+          <div class="alert alert-danger">{{ errorMsg() }}</div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="lu">Username</label>
+            <input id="lu" class="form-control" formControlName="username" autocomplete="username" />
+            @if (form.controls.username.invalid && form.controls.username.touched) {
+              <div class="form-text text-danger">
+                Letters, digits, underscore only · 3–50 characters.
+              </div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="lp">Password</label>
+            <input id="lp" type="password" class="form-control" formControlName="password" autocomplete="current-password" />
+            @if (form.controls.password.invalid && form.controls.password.touched) {
+              <div class="form-text text-danger">Minimum 6 characters.</div>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 mb-2">Sign in</button>
+          <p class="small text-muted text-center mb-0">
+            No account?
+            <a routerLink="/register">Register</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
