@@ -1,0 +1,88 @@
+<div class="page-wrap">
+  <div class="section-title">Dashboard</div>
+  <div class="section-sub">Welcome back, {{ auth.username() }} — here's a quick overview</div>
+
+  @if (loading()) {
+    <div class="text-center py-5 text-muted" style="font-size:13px;">
+      <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+      Loading stats...
+    </div>
+  }
+
+  @if (!loading() && stats()) {
+    <!-- Stats cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+          <div class="stat-label">Total Employees</div>
+          <div class="stat-value">{{ stats()!.totalEmployees }}</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+          <div class="stat-label">Departments</div>
+          <div class="stat-value">{{ stats()!.totalDepartments }}</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+          <div class="stat-label">Avg Salary</div>
+          <div class="stat-value">{{ stats()!.avgSalary | number:'1.0-0' }}</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+          <div class="stat-label">Added This Month</div>
+          <div class="stat-value">{{ stats()!.addedThisMonth }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info row -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="card p-3">
+          <div style="font-size:12px;color:#888;margin-bottom:6px;">HIGHEST PAID EMPLOYEE</div>
+          <div style="font-size:16px;font-weight:bold;">{{ stats()!.highestPaidName }}</div>
+          <div style="font-size:13px;color:#555;margin-top:2px;">
+            Salary: {{ stats()!.highestSalary | number:'1.0-0' }}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card p-3 d-flex flex-column justify-content-between h-100">
+          <div style="font-size:12px;color:#888;margin-bottom:6px;">QUICK ACTIONS</div>
+          <div class="d-flex flex-wrap gap-2 mt-1">
+            <a routerLink="/employees" class="btn btn-dark btn-sm">View Employees</a>
+            <a routerLink="/employees" class="btn btn-outline-secondary btn-sm" (click)="null">Add Employee</a>
+            @if (auth.isAdmin()) {
+              <a routerLink="/employees" class="btn btn-outline-secondary btn-sm">Export Data</a>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Role info -->
+    <div class="card p-3">
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">YOUR ACCOUNT</div>
+      <div class="d-flex align-items-center gap-3">
+        <div>
+          <div style="font-size:15px;font-weight:bold;">{{ auth.username() }}</div>
+          <div style="font-size:12px;color:#888;">Logged in as
+            <strong>{{ auth.isAdmin() ? 'Administrator' : 'User' }}</strong>
+          </div>
+        </div>
+        @if (auth.isAdmin()) {
+          <div style="font-size:12px;color:#555;border-left:3px solid #dee2e6;padding-left:12px;">
+            As Admin you can add, edit, and delete employees,<br>and export records as PDF or Excel.
+          </div>
+        } @else {
+          <div style="font-size:12px;color:#555;border-left:3px solid #dee2e6;padding-left:12px;">
+            As User you can view, add, and edit employee records.
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

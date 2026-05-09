@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { EmployeeService } from '../../core/employee.service';
+import { StatsService } from '../../core/stats.service';
 import { Employee, PageEmployee, VALIDATION } from '../../core/models';
 
 @Component({
@@ -15,6 +16,7 @@ import { Employee, PageEmployee, VALIDATION } from '../../core/models';
 export class EmployeesComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(EmployeeService);
+  private readonly statsService = inject(StatsService);
 
   readonly auth = inject(AuthService);
 
@@ -23,6 +25,8 @@ export class EmployeesComponent implements OnInit {
   readonly saveError = signal<string | null>(null);
   readonly modalOpen = signal(false);
   readonly editingId = signal<number | null>(null);
+  readonly viewEmployee = signal<Employee | null>(null);
+  readonly departments = signal<string[]>([]);
 
   readonly filterForm = this.fb.nonNullable.group({
     q: [''],
@@ -47,6 +51,15 @@ export class EmployeesComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
+    this.statsService.departments().subscribe((d) => this.departments.set(d));
+  }
+
+  openView(e: Employee): void {
+    this.viewEmployee.set(e);
+  }
+
+  closeView(): void {
+    this.viewEmployee.set(null);
   }
 
   onSortChange(): void {

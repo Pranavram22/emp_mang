@@ -19,13 +19,18 @@
   <div class="card mb-3">
     <div class="card-body py-2">
       <form [formGroup]="filterForm" class="row g-2 align-items-end" (ngSubmit)="applyFilters()">
-        <div class="col-md-5">
-          <label class="form-label mb-1" style="font-size:12px;">Search by name / email / username</label>
-          <input class="form-control form-control-sm" formControlName="q" placeholder="Type to search..." />
+        <div class="col-md-4">
+          <label class="form-label mb-1" style="font-size:12px;">Search</label>
+          <input class="form-control form-control-sm" formControlName="q" placeholder="Name, email, username..." />
         </div>
         <div class="col-md-3">
-          <label class="form-label mb-1" style="font-size:12px;">Filter by department</label>
-          <input class="form-control form-control-sm" formControlName="department" placeholder="Department" />
+          <label class="form-label mb-1" style="font-size:12px;">Department</label>
+          <select class="form-select form-select-sm" formControlName="department">
+            <option value="">All departments</option>
+            @for (dept of departments(); track dept) {
+              <option [value]="dept">{{ dept }}</option>
+            }
+          </select>
         </div>
         <div class="col-md-2">
           <label class="form-label mb-1" style="font-size:12px;">Sort</label>
@@ -36,10 +41,10 @@
             <option value="lastName,desc">Name Z-A</option>
           </select>
         </div>
-        <div class="col-md-2 d-flex gap-2 pt-1">
+        <div class="col-md-3 d-flex gap-2 pt-1">
           <button type="submit" class="btn btn-dark btn-sm flex-grow-1">Search</button>
           <button type="button" class="btn btn-outline-secondary btn-sm"
-            (click)="filterForm.reset({ q: '', department: '' }); applyFilters()">Reset</button>
+            (click)="filterForm.reset({ q: '', department: '' }); applyFilters()">Clear</button>
         </div>
       </form>
     </div>
@@ -80,7 +85,12 @@
               @for (e of pageData()!.content; track e.id) {
                 <tr>
                   <td class="text-muted">{{ e.id }}</td>
-                  <td><strong>{{ e.firstName }} {{ e.lastName }}</strong></td>
+                  <td>
+                    <a href="#" class="text-dark fw-bold text-decoration-none"
+                       (click)="$event.preventDefault(); openView(e)">
+                      {{ e.firstName }} {{ e.lastName }}
+                    </a>
+                  </td>
                   <td>{{ e.username }}</td>
                   <td>{{ e.email }}</td>
                   <td>{{ e.age }}</td>
@@ -94,6 +104,7 @@
                   </td>
                   <td>{{ e.salary != null ? (e.salary | number:'1.0-0') : '—' }}</td>
                   <td>
+                    <button class="btn btn-sm btn-outline-secondary me-1" (click)="openView(e)">View</button>
                     <button class="btn btn-sm btn-outline-primary me-1" (click)="openEdit(e)">Edit</button>
                     @if (auth.isAdmin()) {
                       <button class="btn btn-sm btn-outline-danger" (click)="deleteRow(e)">Delete</button>
@@ -110,7 +121,8 @@
       @if ((pageData()?.totalPages ?? 0) > 1) {
         <div class="card-footer bg-white d-flex justify-content-between align-items-center py-2">
           <small class="text-muted">
-            Showing page {{ (pageData()?.number ?? 0) + 1 }} of {{ pageData()?.totalPages }}
+            Page {{ (pageData()?.number ?? 0) + 1 }} of {{ pageData()?.totalPages }}
+            ({{ pageData()?.totalElements }} total)
           </small>
           <nav>
             <ul class="pagination pagination-sm mb-0">
@@ -132,7 +144,42 @@
     </div>
   }
 
-  <!-- Modal -->
+  <!-- View Employee Modal -->
+  @if (viewEmployee()) {
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
+         (mousedown)="closeView()">
+      <div class="modal-dialog modal-dialog-centered" (mousedown)="$event.stopPropagation()">
+        <div class="modal-content">
+          <div class="modal-header" style="background:#1a1a2e;">
+            <h5 class="modal-title text-white">Employee Details</h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeView()"></button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-sm table-bordered mb-0">
+              <tbody>
+                <tr><td style="width:40%;background:#f8f8f8;font-size:12px;font-weight:bold;">ID</td><td>{{ viewEmployee()!.id }}</td></tr>
+                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Username</td><td>{{ viewEmployee()!.username }}</td></tr>
+                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Full Name</td><td>{{ viewEmployee()!.firstName }} {{ viewEmployee()!.lastName }}</td></tr>
+                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Email</td><td>{{ viewEmployee()!.email }}</td></tr>
+                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Age</td><td>{{ viewEmployee()!.age }}</td></tr>
+                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Mobile</td><td>{{ viewEmployee()!.mobile }}</td></tr>
+                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Department</td><td>{{ viewEmployee()!.department || '—' }}</td></tr>
+                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Salary</td><td>{{ viewEmployee()!.salary != null ? (viewEmployee()!.salary! | number:'1.0-0') : '—' }}</td></tr>
+                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Added On</td><td>{{ viewEmployee()!.createdAt ? (viewEmployee()!.createdAt | date:'dd MMM yyyy, hh:mm a') : '—' }}</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline-primary btn-sm" (click)="openEdit(viewEmployee()!); closeView()">Edit</button>
+            <button class="btn btn-secondary btn-sm" (click)="closeView()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+  }
+
+  <!-- Add/Edit Employee Modal -->
   @if (modalOpen()) {
     <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
          (mousedown)="backdropClick($event)">
@@ -193,7 +240,13 @@
                 </div>
                 <div class="col-12">
                   <label class="form-label">Department</label>
-                  <input class="form-control form-control-sm" formControlName="department" placeholder="e.g. Engineering" />
+                  <input class="form-control form-control-sm" formControlName="department"
+                         placeholder="e.g. Engineering" list="dept-list" />
+                  <datalist id="dept-list">
+                    @for (dept of departments(); track dept) {
+                      <option [value]="dept">{{ dept }}</option>
+                    }
+                  </datalist>
                 </div>
               </div>
             </form>

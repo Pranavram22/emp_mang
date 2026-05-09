@@ -11,11 +11,15 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/register/register.component').then((m) => m.RegisterComponent)
   },
   {
-    path: 'employees',
-    loadComponent: () =>
-      import('./pages/employees/employees.component').then((m) => m.EmployeesComponent),
+    path: 'dashboard',
+    loadComponent: () => import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
     canActivate: [authGuard]
   },
-  { path: '', pathMatch: 'full', redirectTo: 'employees' },
-  { path: '**', redirectTo: 'employees' }
+  {
+    path: 'employees',
+    loadComponent: () => import('./pages/employees/employees.component').then((m) => m.EmployeesComponent),
+    canActivate: [authGuard]
+  },
+  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: 'dashboard' }
 ];

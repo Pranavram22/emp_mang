@@ -1,8 +1,15 @@
 <div class="main-navbar">
-  <a class="brand-name" routerLink="/employees">
+  <a class="brand-name" routerLink="/dashboard">
     Employee Database
     <span class="brand-sub">Management System</span>
   </a>
+
+  @if (auth.isLoggedIn()) {
+    <div class="d-flex align-items-center gap-1 mx-auto">
+      <a class="nav-link-item" routerLink="/dashboard" routerLinkActive="active-link">Dashboard</a>
+      <a class="nav-link-item" routerLink="/employees" routerLinkActive="active-link">Employees</a>
+    </div>
+  }
 
   <div class="nav-right">
     @if (!auth.isLoggedIn()) {
