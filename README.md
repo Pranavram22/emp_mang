@@ -2,7 +2,7 @@
 
 A full-stack Employee Management System built with:
 
-- **Backend** — Spring Boot 3.2 · Spring Security (JWT) · JPA/H2 · springdoc Swagger · iText (PDF) · Apache POI (Excel)
+- **Backend** — Spring Boot 3.2 · Spring Security (JWT) · JPA/MySQL · springdoc Swagger · iText (PDF) · Apache POI (Excel)
 - **Frontend** — Angular 19 · Bootstrap 5 · Reactive Forms
 
 ---
@@ -23,81 +23,161 @@ A full-stack Employee Management System built with:
 
 ---
 
-## Prerequisites
+## Running on Windows (Fresh Install)
 
-| Tool | Version | Install |
-|---|---|---|
-| Java | 17+ | [adoptium.net](https://adoptium.net) |
-| Maven | 3.8+ | `brew install maven` or [maven.apache.org](https://maven.apache.org) |
-| Node.js | 18+ | [nodejs.org](https://nodejs.org) |
-| npm | 9+ | Comes with Node.js |
+Follow these steps **in order** on a brand new Windows machine.
 
 ---
 
-## Running on Localhost
+### Step 1 — Install Java 17
 
-### 1. Clone / open the project
+1. Go to **https://adoptium.net**
+2. Download **Temurin 17 (LTS)** → Windows → `.msi` installer
+3. Run the installer — tick **"Set JAVA_HOME"** and **"Add to PATH"** during setup
+4. Verify in a new Command Prompt:
+   ```cmd
+   java -version
+   ```
+   You should see `openjdk version "17.x.x"`
 
-```bash
-cd "emp"
+---
+
+### Step 2 — Install Maven
+
+1. Go to **https://maven.apache.org/download.cgi**
+2. Download the **Binary zip archive** (e.g. `apache-maven-3.9.x-bin.zip`)
+3. Extract it to `C:\Program Files\Maven\`
+4. Add Maven to PATH:
+   - Search **"Environment Variables"** in Windows search
+   - Under **System Variables** → find `Path` → click Edit → New
+   - Add: `C:\Program Files\Maven\apache-maven-3.9.x\bin`
+5. Verify in a new Command Prompt:
+   ```cmd
+   mvn -version
+   ```
+
+---
+
+### Step 3 — Install Node.js
+
+1. Go to **https://nodejs.org**
+2. Download the **LTS version** (e.g. 20.x) → Windows Installer `.msi`
+3. Run the installer (keep all defaults)
+4. Verify in a new Command Prompt:
+   ```cmd
+   node -v
+   npm -v
+   ```
+
+---
+
+### Step 4 — Install MySQL
+
+1. Go to **https://dev.mysql.com/downloads/installer/**
+2. Download **MySQL Installer for Windows** (the full `mysql-installer-community` version)
+3. Run the installer → choose **"Developer Default"** setup type → click Execute (installs MySQL Server + tools)
+4. During configuration:
+   - Authentication Method → **Use Legacy Authentication Method** (easier for local dev)
+   - Set a **root password** (remember it)
+   - Leave port as **3306**
+5. Finish installation
+6. Verify — open **MySQL Command Line Client** from Start Menu and log in with root password
+
+---
+
+### Step 5 — Create the Database
+
+Open **MySQL Command Line Client** (or MySQL Workbench) and run:
+
+```sql
+CREATE DATABASE IF NOT EXISTS employeedb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'empuser'@'localhost' IDENTIFIED BY 'emppass123';
+GRANT ALL PRIVILEGES ON employeedb.* TO 'empuser'@'localhost';
+FLUSH PRIVILEGES;
 ```
 
 ---
 
-### 2. Start the Backend (Spring Boot API)
+### Step 6 — Download the Project
 
-```bash
-cd backend
+Option A — with Git:
+```cmd
+git clone https://github.com/YOUR_USERNAME/employee-db.git
+cd employee-db
+```
+
+Option B — without Git:
+- Go to the GitHub repo → click **Code → Download ZIP**
+- Extract the ZIP somewhere (e.g. `C:\Projects\employee-db`)
+
+---
+
+### Step 7 — Start the Backend
+
+Open a **Command Prompt** in the `backend` folder:
+
+```cmd
+cd C:\Projects\employee-db\backend
 mvn spring-boot:run
 ```
 
-- Starts on **http://localhost:8080**
-- Uses an **in-memory H2 database** (no setup needed — resets on restart)
-- Seed accounts created automatically on first run:
+Wait until you see:
+```
+Started EmployeeDbApplication in X seconds
+```
+
+The API is now running at **http://localhost:8080**
+
+---
+
+### Step 8 — Start the Frontend
+
+Open a **second Command Prompt** in the `frontend` folder:
+
+```cmd
+cd C:\Projects\employee-db\frontend
+npm install
+npm start
+```
+
+Wait until you see:
+```
+Local: http://localhost:4200/
+```
+
+---
+
+### Step 9 — Open the App
+
+Go to **http://localhost:4200** in your browser.
 
 | Username | Password | Role |
 |---|---|---|
-| `admin` | `admin123` | ADMIN |
-| `user1` | `user123` | USER |
+| `admin` | `admin123` | Full access (delete, export PDF/Excel) |
+| `user1` | `user123` | View, create, edit only |
 
-**Useful backend URLs:**
+---
+
+## Useful URLs
 
 | URL | Description |
 |---|---|
-| http://localhost:8080/swagger-ui.html | Interactive API docs |
-| http://localhost:8080/h2-console | Database browser (JDBC URL: `jdbc:h2:mem:employeedb`) |
+| http://localhost:4200 | Angular frontend |
+| http://localhost:8080/swagger-ui.html | API documentation (Swagger) |
 | http://localhost:8080/api-docs | Raw OpenAPI JSON |
 
 ---
 
-### 3. Start the Frontend (Angular)
+## Stopping the Servers
 
-Open a **new terminal tab**, then:
-
-```bash
-cd frontend
-npm install        # only needed the first time
-npm start
-```
-
-- Starts on **http://localhost:4200**
-- Hot-reload is enabled — changes reflect instantly
-
----
-
-### 4. Open the App
-
-Go to **http://localhost:4200** in your browser.
-
-- Log in as `admin` / `admin123` to access all features (delete, export PDF/Excel)
-- Log in as `user1` / `user123` to browse and create/edit employees
+- Press **Ctrl + C** in each Command Prompt window
 
 ---
 
 ## Project Structure
 
 ```
-emp/
+employee-db/
 ├── backend/                          # Spring Boot API
 │   ├── pom.xml
 │   └── src/main/java/com/employeedb/
@@ -107,7 +187,7 @@ emp/
 │       ├── repo/                     # Spring Data JPA repositories
 │       ├── security/                 # JWT filter, UserDetails, SecurityConfig
 │       ├── service/                  # Business logic + PDF/Excel export
-│       └── web/                     # REST controllers + exception handler
+│       └── web/                      # REST controllers + exception handler
 │
 └── frontend/                         # Angular 19 app
     └── src/app/
@@ -122,7 +202,7 @@ emp/
 
 ## API Quick Reference
 
-All employee endpoints require a `Bearer <token>` header.
+All employee endpoints require `Authorization: Bearer <token>` header.
 
 | Method | Endpoint | Role | Description |
 |---|---|---|---|
@@ -152,7 +232,10 @@ Rules are enforced on **both** client (Angular) and server (Spring Boot).
 
 ---
 
-## Stopping the Servers
+## Database
 
-- **Backend**: `Ctrl + C` in the terminal running `mvn spring-boot:run`
-- **Frontend**: `Ctrl + C` in the terminal running `npm start`
+- **MySQL** running on `localhost:3306`
+- Database: `employeedb`
+- User: `empuser` / Password: `emppass123`
+- Tables are **auto-created** by Hibernate on first run (`spring.jpa.hibernate.ddl-auto=update`)
+- Seed data (admin + user1 accounts, 1 sample employee) is inserted automatically on startup
