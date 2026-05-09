@@ -1,45 +1,40 @@
-<div class="auth-wrap">
-  <div class="auth-card">
-    <h1>Create account</h1>
-    <p class="sub">New accounts are assigned the User role</p>
+<div class="d-flex justify-content-center mt-5">
+  <div class="card p-4" style="width: 360px;">
+    <h5 class="mb-3">Register</h5>
+    <p class="text-muted mb-3" style="font-size:12px;">New accounts get the User role by default.</p>
 
     @if (errorMsg()) {
-      <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:.45rem;font-size:.83rem;">
-        {{ errorMsg() }}
-      </div>
+      <div class="alert alert-danger py-2" style="font-size:13px;">{{ errorMsg() }}</div>
     }
 
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <div class="mb-3">
-        <label class="form-label" for="ru">Username</label>
-        <input id="ru" class="form-control" formControlName="username"
-               autocomplete="username" placeholder="e.g. john_doe" />
+        <label class="form-label">Username</label>
+        <input class="form-control form-control-sm" formControlName="username" autocomplete="username" />
         @if (form.controls.username.invalid && form.controls.username.touched) {
-          <div class="field-err">3–50 chars — letters, digits, underscore only</div>
+          <small class="text-danger">3–50 characters, letters/digits/underscore only</small>
         }
       </div>
 
       <div class="mb-3">
-        <label class="form-label" for="re">Email</label>
-        <input id="re" type="email" class="form-control" formControlName="email"
-               autocomplete="email" placeholder="you@example.com" />
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control form-control-sm" formControlName="email" autocomplete="email" />
         @if (form.controls.email.invalid && form.controls.email.touched) {
-          <div class="field-err">Enter a valid email address</div>
+          <small class="text-danger">Enter a valid email</small>
         }
       </div>
 
-      <div class="mb-4">
-        <label class="form-label" for="rp">Password</label>
-        <input id="rp" type="password" class="form-control" formControlName="password"
-               autocomplete="new-password" placeholder="Minimum 6 characters" />
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control form-control-sm" formControlName="password" autocomplete="new-password" />
         @if (form.controls.password.invalid && form.controls.password.touched) {
-          <div class="field-err">At least 6 characters</div>
+          <small class="text-danger">Minimum 6 characters</small>
         }
       </div>
 
-      <button type="submit" class="btn-auth">Create account</button>
+      <button type="submit" class="btn btn-dark btn-sm w-100">Register</button>
     </form>
 
-    <p class="switch-link">Already have an account? <a routerLink="/login">Sign in</a></p>
+    <p class="text-center mt-3 mb-0" style="font-size:12px;">Already registered? <a routerLink="/login">Login</a></p>
   </div>
 </div>

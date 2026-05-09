@@ -1,22 +1,21 @@
-<nav class="app-navbar">
-  <a class="brand me-auto" routerLink="/employees">EMP.DB</a>
-
-  <div class="d-flex align-items-center gap-2">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+  <a class="navbar-brand" routerLink="/employees">Employee DB</a>
+  <div class="ms-auto d-flex align-items-center gap-2">
     @if (!auth.isLoggedIn()) {
-      <a class="btn-nav" routerLink="/login">Log in</a>
-      <a class="btn-nav solid" routerLink="/register">Sign up</a>
+      <a class="btn btn-outline-light btn-sm" routerLink="/login">Login</a>
+      <a class="btn btn-light btn-sm" routerLink="/register">Register</a>
     } @else {
-      <span class="nav-user d-none d-sm-inline">{{ auth.username() }}</span>
+      <span class="text-white-50 small">{{ auth.username() }}</span>
       @if (auth.isAdmin()) {
-        <span class="badge-role admin">Admin</span>
+        <span class="badge bg-warning text-dark">Admin</span>
       } @else {
-        <span class="badge-role user">User</span>
+        <span class="badge bg-secondary">User</span>
       }
-      <button class="btn-nav" (click)="logout()">Log out</button>
+      <button class="btn btn-outline-light btn-sm" (click)="logout()">Logout</button>
     }
   </div>
 </nav>
 
-<main class="container-fluid px-3 px-md-4 py-4">
+<div class="container-fluid px-4 py-3">
   <router-outlet />
-</main>
+</div>

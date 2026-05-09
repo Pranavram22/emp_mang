@@ -1,111 +1,94 @@
 <div>
-  <!-- Header -->
-  <div class="action-bar">
-    <div class="page-header mb-0">
-      <h1>Employees</h1>
-      <p class="sub-text">{{ pageData()?.totalElements ?? 0 }} records total</p>
-    </div>
-    <div class="d-flex flex-wrap gap-2">
+  <!-- Top bar -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">Employee List</h5>
+    <div class="d-flex gap-2">
       @if (auth.isAdmin()) {
-        <button type="button" class="btn-export" (click)="exportPdf()">Export PDF</button>
-        <button type="button" class="btn-export" (click)="exportExcel()">Export Excel</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="exportPdf()">Export PDF</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="exportExcel()">Export Excel</button>
       }
-      <button type="button" class="btn-add" (click)="openCreate()">+ Add Employee</button>
+      <button class="btn btn-dark btn-sm" (click)="openCreate()">Add Employee</button>
     </div>
   </div>
 
-  <!-- Filters -->
-  <div class="filter-card">
-    <form [formGroup]="filterForm" class="row g-2 align-items-end" (ngSubmit)="applyFilters()">
-      <div class="col-md-5">
-        <label class="form-label">Search</label>
-        <input class="form-control" formControlName="q" placeholder="Name, email, username..." />
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Department</label>
-        <input class="form-control" formControlName="department" placeholder="e.g. Engineering" />
-      </div>
-      <div class="col-md-2">
-        <label class="form-label">Sort by</label>
-        <select class="form-select" [formControl]="sortControl" (change)="onSortChange()">
-          <option value="id,asc">ID — oldest first</option>
-          <option value="id,desc">ID — newest first</option>
-          <option value="lastName,asc">Last name A to Z</option>
-          <option value="lastName,desc">Last name Z to A</option>
-        </select>
-      </div>
-      <div class="col-md-2 d-flex gap-2">
-        <button type="submit" class="btn-apply flex-grow-1">Apply</button>
-        <button type="button" class="btn-reset"
-          (click)="filterForm.reset({ q: '', department: '' }); applyFilters()">X</button>
-      </div>
-    </form>
+  <!-- Filter bar -->
+  <div class="card mb-3">
+    <div class="card-body py-2 px-3">
+      <form [formGroup]="filterForm" class="row g-2 align-items-end" (ngSubmit)="applyFilters()">
+        <div class="col-md-4">
+          <label class="form-label mb-1" style="font-size:12px;">Search</label>
+          <input class="form-control form-control-sm" formControlName="q" placeholder="Name, email, username..." />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label mb-1" style="font-size:12px;">Department</label>
+          <input class="form-control form-control-sm" formControlName="department" placeholder="Department" />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label mb-1" style="font-size:12px;">Sort</label>
+          <select class="form-select form-select-sm" [formControl]="sortControl" (change)="onSortChange()">
+            <option value="id,asc">ID Asc</option>
+            <option value="id,desc">ID Desc</option>
+            <option value="lastName,asc">Name A-Z</option>
+            <option value="lastName,desc">Name Z-A</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button type="submit" class="btn btn-dark btn-sm">Search</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm"
+            (click)="filterForm.reset({ q: '', department: '' }); applyFilters()">Clear</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- Loading -->
   @if (loading()) {
-    <div class="loading-wrap">
-      <div class="spinner-ring"></div>
-      <p>Loading...</p>
+    <div class="text-center py-5">
+      <div class="spinner-border spinner-border-sm" role="status"></div>
+      <span class="ms-2 text-muted" style="font-size:13px;">Loading...</span>
     </div>
   }
 
   <!-- Table -->
   @if (!loading()) {
-    <div class="table-card">
+    <div class="card">
       <div class="table-responsive">
         @if ((pageData()?.content?.length ?? 0) === 0) {
-          <div class="empty-state">
-            <div class="empty-icon">[ No results ]</div>
-            <div>No employees match your search.</div>
-            <small style="font-size:.76rem;">Try clearing the filters.</small>
-          </div>
+          <div class="text-center text-muted py-5" style="font-size:13px;">No employees found.</div>
         } @else {
-          <table class="table">
+          <table class="table table-bordered table-hover mb-0">
             <thead>
               <tr>
                 <th>#</th>
                 <th>Username</th>
-                <th>Full Name</th>
+                <th>Name</th>
                 <th>Email</th>
                 <th>Age</th>
                 <th>Mobile</th>
                 <th>Department</th>
                 <th>Salary</th>
-                <th></th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               @for (e of pageData()!.content; track e.id) {
                 <tr>
-                  <td style="color:#bbb;font-size:.77rem;">{{ e.id }}</td>
-                  <td><strong>{{ e.username }}</strong></td>
+                  <td class="text-muted">{{ e.id }}</td>
+                  <td>{{ e.username }}</td>
                   <td>{{ e.firstName }} {{ e.lastName }}</td>
-                  <td style="color:#555;">{{ e.email }}</td>
+                  <td>{{ e.email }}</td>
                   <td>{{ e.age }}</td>
                   <td>{{ e.mobile }}</td>
                   <td>
                     @if (e.department) {
-                      <span style="background:#f0f0f0;color:#333;border-radius:3px;padding:.12rem .5rem;font-size:.75rem;font-weight:600;letter-spacing:.3px;">
-                        {{ e.department }}
-                      </span>
-                    } @else {
-                      <span style="color:#ccc;">—</span>
-                    }
+                      <span class="dept-badge">{{ e.department }}</span>
+                    } @else { — }
                   </td>
+                  <td>{{ e.salary != null ? (e.salary | number:'1.0-0') : '—' }}</td>
                   <td>
-                    @if (e.salary != null) {
-                      <span style="font-weight:600;">
-                        {{ e.salary | number:'1.0-0' }}
-                      </span>
-                    } @else {
-                      <span style="color:#ccc;">—</span>
-                    }
-                  </td>
-                  <td class="text-end text-nowrap">
-                    <button class="btn-edit" (click)="openEdit(e)">Edit</button>
+                    <button class="btn btn-outline-primary btn-sm me-1" (click)="openEdit(e)">Edit</button>
                     @if (auth.isAdmin()) {
-                      <button class="btn-del" (click)="deleteRow(e)">Delete</button>
+                      <button class="btn btn-outline-danger btn-sm" (click)="deleteRow(e)">Delete</button>
                     }
                   </td>
                 </tr>
@@ -117,20 +100,24 @@
 
       <!-- Pagination -->
       @if ((pageData()?.totalPages ?? 0) > 1) {
-        <div class="table-footer">
-          <span class="info">
+        <div class="card-footer d-flex justify-content-between align-items-center py-2">
+          <small class="text-muted">
             Page {{ (pageData()?.number ?? 0) + 1 }} of {{ pageData()?.totalPages }}
-            &nbsp;·&nbsp; {{ pageData()?.totalElements }} total
-          </span>
-          <div class="pager">
-            <button class="pg-btn" (click)="prev()" [disabled]="pageData()?.first">Prev</button>
+            ({{ pageData()?.totalElements }} total)
+          </small>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="pageData()?.first">
+              <button class="page-link" (click)="prev()">Prev</button>
+            </li>
             @for (pn of pageNumbers(); track pn) {
-              <button class="pg-btn" [class.active]="pn === pageData()?.number" (click)="setPage(pn)">
-                {{ pn + 1 }}
-              </button>
+              <li class="page-item" [class.active]="pn === pageData()?.number">
+                <button class="page-link" (click)="setPage(pn)">{{ pn + 1 }}</button>
+              </li>
             }
-            <button class="pg-btn" (click)="next()" [disabled]="pageData()?.last">Next</button>
-          </div>
+            <li class="page-item" [class.disabled]="pageData()?.last">
+              <button class="page-link" (click)="next()">Next</button>
+            </li>
+          </ul>
         </div>
       }
     </div>
@@ -138,74 +125,71 @@
 
   <!-- Modal -->
   @if (modalOpen()) {
-    <div class="modal fade show d-block human-modal" tabindex="-1" aria-modal="true" role="dialog"
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
          (mousedown)="backdropClick($event)">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
            (mousedown)="$event.stopPropagation()">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title">{{ editingId() === null ? 'New Employee' : 'Edit Employee' }}</h2>
-            <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+            <h5 class="modal-title">{{ editingId() === null ? 'Add Employee' : 'Edit Employee' }}</h5>
+            <button type="button" class="btn-close" (click)="closeModal()"></button>
           </div>
           <div class="modal-body">
             @if (saveError()) {
-              <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:.4rem;font-size:.83rem;">
-                {{ saveError() }}
-              </div>
+              <div class="alert alert-danger py-2" style="font-size:13px;">{{ saveError() }}</div>
             }
             <form [formGroup]="empForm">
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label">Username</label>
-                  <input class="form-control" formControlName="username" autocomplete="off" placeholder="e.g. john_doe" />
+                  <input class="form-control form-control-sm" formControlName="username" autocomplete="off" />
                   @if (empForm.controls.username.invalid && empForm.controls.username.touched) {
-                    <div class="field-err">3–50 chars — letters, digits, underscore</div>
+                    <small class="text-danger">3–50 chars, letters/digits/underscore</small>
                   }
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Email</label>
-                  <input type="email" class="form-control" formControlName="email" placeholder="you@example.com" />
+                  <input type="email" class="form-control form-control-sm" formControlName="email" />
                   @if (empForm.controls.email.invalid && empForm.controls.email.touched) {
-                    <div class="field-err">Enter a valid email address</div>
+                    <small class="text-danger">Enter a valid email</small>
                   }
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">First Name</label>
-                  <input class="form-control" formControlName="firstName" placeholder="First name" />
+                  <input class="form-control form-control-sm" formControlName="firstName" />
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Last Name</label>
-                  <input class="form-control" formControlName="lastName" placeholder="Last name" />
+                  <input class="form-control form-control-sm" formControlName="lastName" />
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Age</label>
-                  <input type="number" class="form-control" formControlName="age" min="18" max="100" placeholder="18–100" />
+                  <input type="number" class="form-control form-control-sm" formControlName="age" min="18" max="100" />
                   @if (empForm.controls.age.invalid && empForm.controls.age.touched) {
-                    <div class="field-err">Age must be between 18 and 100</div>
+                    <small class="text-danger">Age must be 18–100</small>
                   }
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Mobile</label>
-                  <input class="form-control" formControlName="mobile" maxlength="10"
-                         inputmode="numeric" placeholder="10-digit number" />
+                  <input class="form-control form-control-sm" formControlName="mobile" maxlength="10" inputmode="numeric" />
                   @if (empForm.controls.mobile.invalid && empForm.controls.mobile.touched) {
-                    <div class="field-err">Exactly 10 digits required</div>
+                    <small class="text-danger">Exactly 10 digits</small>
                   }
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Salary</label>
-                  <input type="number" class="form-control" formControlName="salary" step="1000" min="0" placeholder="Optional" />
+                  <input type="number" class="form-control form-control-sm" formControlName="salary" step="1000" min="0" />
                 </div>
                 <div class="col-12">
                   <label class="form-label">Department</label>
-                  <input class="form-control" formControlName="department" placeholder="e.g. Engineering, Marketing" />
+                  <input class="form-control form-control-sm" formControlName="department" />
                 </div>
               </div>
             </form>
           </div>
           <div class="modal-footer">
-            <button class="btn-cancel" (click)="closeModal()">Cancel</button>
-            <button class="btn-save" (click)="save()">Save</button>
+            <button class="btn btn-secondary btn-sm" (click)="closeModal()">Cancel</button>
+            <button class="btn btn-dark btn-sm" (click)="save()">Save</button>
           </div>
         </div>
       </div>

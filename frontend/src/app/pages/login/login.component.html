@@ -1,44 +1,33 @@
-<div class="auth-wrap">
-  <div class="auth-card">
-    <h1>Welcome back</h1>
-    <p class="sub">Sign in to continue to Employee DB</p>
+<div class="d-flex justify-content-center mt-5">
+  <div class="card p-4" style="width: 360px;">
+    <h5 class="mb-3">Login</h5>
 
     @if (errorMsg()) {
-      <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:.45rem;font-size:.83rem;">
-        {{ errorMsg() }}
-      </div>
+      <div class="alert alert-danger py-2" style="font-size:13px;">{{ errorMsg() }}</div>
     }
 
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <div class="mb-3">
-        <label class="form-label" for="lu">Username</label>
-        <input id="lu" class="form-control" formControlName="username"
-               autocomplete="username" placeholder="Enter your username" />
+        <label class="form-label">Username</label>
+        <input class="form-control form-control-sm" formControlName="username" autocomplete="username" />
         @if (form.controls.username.invalid && form.controls.username.touched) {
-          <div class="field-err">3–50 chars — letters, digits, underscore only</div>
+          <small class="text-danger">3–50 characters, letters/digits/underscore only</small>
         }
       </div>
 
-      <div class="mb-4">
-        <label class="form-label" for="lp">Password</label>
-        <input id="lp" type="password" class="form-control" formControlName="password"
-               autocomplete="current-password" placeholder="Enter your password" />
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control form-control-sm" formControlName="password" autocomplete="current-password" />
         @if (form.controls.password.invalid && form.controls.password.touched) {
-          <div class="field-err">Minimum 6 characters</div>
+          <small class="text-danger">Minimum 6 characters</small>
         }
       </div>
 
-      <button type="submit" class="btn-auth">Sign in</button>
+      <button type="submit" class="btn btn-dark btn-sm w-100">Login</button>
     </form>
 
-    <p class="switch-link">No account? <a routerLink="/register">Create one</a></p>
-
-    <div style="margin-top:1.5rem;padding-top:1.1rem;border-top:1px solid #f0f0f0;">
-      <p style="font-size:.74rem;color:#aaa;text-align:center;margin:0;">
-        Demo &nbsp;—&nbsp;
-        <strong style="color:#111;">admin</strong> / admin123 &nbsp;|&nbsp;
-        <strong style="color:#111;">user1</strong> / user123
-      </p>
-    </div>
+    <hr class="my-3" />
+    <p class="text-center mb-1" style="font-size:12px;">Don't have an account? <a routerLink="/register">Register</a></p>
+    <p class="text-center text-muted mb-0" style="font-size:11px;">admin / admin123 &nbsp;|&nbsp; user1 / user123</p>
   </div>
 </div>
