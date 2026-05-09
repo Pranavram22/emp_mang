@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,8 +52,10 @@ public class EmployeeController {
   public Page<Employee> list(
       @RequestParam(required = false) String q,
       @RequestParam(required = false) String department,
+      @RequestParam(required = false) BigDecimal minSalary,
+      @RequestParam(required = false) BigDecimal maxSalary,
       @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-    return service.findPage(q, department, pageable);
+    return service.findPage(q, department, minSalary, maxSalary, pageable);
   }
 
   @GetMapping("/{id}")
@@ -84,8 +87,11 @@ public class EmployeeController {
   @GetMapping("/export/pdf")
   @Operation(summary = "Export filtered employees to PDF (ADMIN only)")
   public ResponseEntity<byte[]> exportPdf(
-      @RequestParam(required = false) String q, @RequestParam(required = false) String department) {
-    List<Employee> rows = service.findAllForExport(q, department);
+      @RequestParam(required = false) String q,
+      @RequestParam(required = false) String department,
+      @RequestParam(required = false) BigDecimal minSalary,
+      @RequestParam(required = false) BigDecimal maxSalary) {
+    List<Employee> rows = service.findAllForExport(q, department, minSalary, maxSalary);
     byte[] bytes = pdfExport.build(rows);
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=employees.pdf")
@@ -96,9 +102,12 @@ public class EmployeeController {
   @GetMapping("/export/excel")
   @Operation(summary = "Export filtered employees to Excel (ADMIN only)")
   public ResponseEntity<byte[]> exportExcel(
-      @RequestParam(required = false) String q, @RequestParam(required = false) String department)
+      @RequestParam(required = false) String q,
+      @RequestParam(required = false) String department,
+      @RequestParam(required = false) BigDecimal minSalary,
+      @RequestParam(required = false) BigDecimal maxSalary)
       throws IOException {
-    List<Employee> rows = service.findAllForExport(q, department);
+    List<Employee> rows = service.findAllForExport(q, department, minSalary, maxSalary);
     byte[] bytes = excelExport.build(rows);
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=employees.xlsx")

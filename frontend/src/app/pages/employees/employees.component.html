@@ -33,18 +33,26 @@
           </select>
         </div>
         <div class="col-md-2">
+          <label class="form-label mb-1" style="font-size:12px;">Min Salary</label>
+          <input type="number" class="form-control form-control-sm" formControlName="minSalary" placeholder="0" min="0" />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label mb-1" style="font-size:12px;">Max Salary</label>
+          <input type="number" class="form-control form-control-sm" formControlName="maxSalary" placeholder="∞" min="0" />
+        </div>
+        <div class="col-md-1">
           <label class="form-label mb-1" style="font-size:12px;">Sort</label>
           <select class="form-select form-select-sm" [formControl]="sortControl" (change)="onSortChange()">
-            <option value="id,asc">ID Asc</option>
-            <option value="id,desc">ID Desc</option>
+            <option value="id,asc">ID ↑</option>
+            <option value="id,desc">ID ↓</option>
             <option value="lastName,asc">Name A-Z</option>
             <option value="lastName,desc">Name Z-A</option>
           </select>
         </div>
-        <div class="col-md-3 d-flex gap-2 pt-1">
+        <div class="col-md-2 d-flex gap-2 pt-1">
           <button type="submit" class="btn btn-dark btn-sm flex-grow-1">Search</button>
           <button type="button" class="btn btn-outline-secondary btn-sm"
-            (click)="filterForm.reset({ q: '', department: '' }); applyFilters()">Clear</button>
+            (click)="filterForm.reset({ q: '', department: '', minSalary: null, maxSalary: null }); applyFilters()">Clear</button>
         </div>
       </form>
     </div>
@@ -92,9 +100,17 @@
                     </a>
                   </td>
                   <td>{{ e.username }}</td>
-                  <td>{{ e.email }}</td>
+                  <td>
+                    <span class="copy-cell" title="Click to copy" (click)="copyToClipboard(e.email, 'Email')">
+                      {{ e.email }}
+                    </span>
+                  </td>
                   <td>{{ e.age }}</td>
-                  <td>{{ e.mobile }}</td>
+                  <td>
+                    <span class="copy-cell" title="Click to copy" (click)="copyToClipboard(e.mobile, 'Mobile')">
+                      {{ e.mobile }}
+                    </span>
+                  </td>
                   <td>
                     @if (e.department) {
                       <span class="dept-tag">{{ e.department }}</span>

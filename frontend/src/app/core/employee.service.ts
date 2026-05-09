@@ -10,6 +10,8 @@ export interface EmployeeListParams {
   q?: string;
   department?: string;
   sort?: string;
+  minSalary?: number | null;
+  maxSalary?: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,6 +26,8 @@ export class EmployeeService {
       .set('sort', p.sort ?? 'id,asc');
     if (p.q?.trim()) params = params.set('q', p.q.trim());
     if (p.department?.trim()) params = params.set('department', p.department.trim());
+    if (p.minSalary != null) params = params.set('minSalary', String(p.minSalary));
+    if (p.maxSalary != null) params = params.set('maxSalary', String(p.maxSalary));
     return this.http.get<PageEmployee>(`${this.api}/api/employees`, { params });
   }
 
@@ -43,23 +47,21 @@ export class EmployeeService {
     return this.http.delete<void>(`${this.api}/api/employees/${id}`);
   }
 
-  exportPdf(q?: string, department?: string): Observable<Blob> {
+  exportPdf(q?: string, department?: string, minSalary?: number | null, maxSalary?: number | null): Observable<Blob> {
     let params = new HttpParams();
     if (q?.trim()) params = params.set('q', q.trim());
     if (department?.trim()) params = params.set('department', department.trim());
-    return this.http.get(`${this.api}/api/employees/export/pdf`, {
-      params,
-      responseType: 'blob'
-    });
+    if (minSalary != null) params = params.set('minSalary', String(minSalary));
+    if (maxSalary != null) params = params.set('maxSalary', String(maxSalary));
+    return this.http.get(`${this.api}/api/employees/export/pdf`, { params, responseType: 'blob' });
   }
 
-  exportExcel(q?: string, department?: string): Observable<Blob> {
+  exportExcel(q?: string, department?: string, minSalary?: number | null, maxSalary?: number | null): Observable<Blob> {
     let params = new HttpParams();
     if (q?.trim()) params = params.set('q', q.trim());
     if (department?.trim()) params = params.set('department', department.trim());
-    return this.http.get(`${this.api}/api/employees/export/excel`, {
-      params,
-      responseType: 'blob'
-    });
+    if (minSalary != null) params = params.set('minSalary', String(minSalary));
+    if (maxSalary != null) params = params.set('maxSalary', String(maxSalary));
+    return this.http.get(`${this.api}/api/employees/export/excel`, { params, responseType: 'blob' });
   }
 }

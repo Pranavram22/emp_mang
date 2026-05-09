@@ -3,6 +3,7 @@ package com.employeedb.service;
 import com.employeedb.model.Employee;
 import com.employeedb.repo.EmployeeRepository;
 import com.employeedb.service.spec.EmployeeSpecs;
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,12 +19,14 @@ public class EmployeeService {
     this.repo = repo;
   }
 
-  public Page<Employee> findPage(String q, String department, Pageable pageable) {
-    return repo.findAll(EmployeeSpecs.filter(q, department), pageable);
+  public Page<Employee> findPage(
+      String q, String department, BigDecimal minSalary, BigDecimal maxSalary, Pageable pageable) {
+    return repo.findAll(EmployeeSpecs.filter(q, department, minSalary, maxSalary), pageable);
   }
 
-  public List<Employee> findAllForExport(String q, String department) {
-    return repo.findAll(EmployeeSpecs.filter(q, department));
+  public List<Employee> findAllForExport(
+      String q, String department, BigDecimal minSalary, BigDecimal maxSalary) {
+    return repo.findAll(EmployeeSpecs.filter(q, department, minSalary, maxSalary));
   }
 
   public Employee getById(Long id) {

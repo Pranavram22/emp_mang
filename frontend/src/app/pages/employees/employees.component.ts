@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { EmployeeService } from '../../core/employee.service';
 import { StatsService } from '../../core/stats.service';
+import { ToastService } from '../../core/toast.service';
 import { Employee, PageEmployee, VALIDATION } from '../../core/models';
 
 @Component({
@@ -17,6 +18,7 @@ export class EmployeesComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(EmployeeService);
   private readonly statsService = inject(StatsService);
+  private readonly toast = inject(ToastService);
 
   readonly auth = inject(AuthService);
 
@@ -27,10 +29,13 @@ export class EmployeesComponent implements OnInit {
   readonly editingId = signal<number | null>(null);
   readonly viewEmployee = signal<Employee | null>(null);
   readonly departments = signal<string[]>([]);
+  readonly copiedField = signal<string | null>(null);
 
   readonly filterForm = this.fb.nonNullable.group({
     q: [''],
-    department: ['']
+    department: [''],
+    minSalary: [null as number | null],
+    maxSalary: [null as number | null]
   });
 
   readonly sortControl = this.fb.nonNullable.control('id,asc');
@@ -62,6 +67,12 @@ export class EmployeesComponent implements OnInit {
     this.viewEmployee.set(null);
   }
 
+  copyToClipboard(value: string, label: string): void {
+    navigator.clipboard.writeText(value).then(() => {
+      this.toast.success(`${label} copied to clipboard`);
+    });
+  }
+
   onSortChange(): void {
     this.currentPageIndex.set(0);
     this.reload();
@@ -76,7 +87,9 @@ export class EmployeesComponent implements OnInit {
         size: this.pageSize,
         q: f.q || undefined,
         department: f.department || undefined,
-        sort: this.sortControl.value
+        sort: this.sortControl.value,
+        minSalary: f.minSalary ?? null,
+        maxSalary: f.maxSalary ?? null
       })
       .subscribe({
         next: (p) => {
@@ -161,7 +174,6 @@ export class EmployeesComponent implements OnInit {
       return;
     }
     const raw = this.empForm.getRawValue();
-    const salaryNum = raw.salary;
     const body: Employee = {
       username: raw.username,
       email: raw.email,
@@ -171,16 +183,18 @@ export class EmployeesComponent implements OnInit {
       lastName: raw.lastName,
       department: raw.department?.trim() ? raw.department.trim() : undefined,
       salary:
-        salaryNum !== null && salaryNum !== undefined && !Number.isNaN(Number(salaryNum))
-          ? Number(salaryNum)
+        raw.salary !== null && raw.salary !== undefined && !Number.isNaN(Number(raw.salary))
+          ? Number(raw.salary)
           : undefined
     };
     const id = this.editingId();
     const req = id == null ? this.api.create(body) : this.api.update(id, body);
+    const verb = id == null ? 'added' : 'updated';
     req.subscribe({
       next: () => {
         this.closeModal();
         this.reload();
+        this.toast.success(`Employee ${verb} successfully`);
       },
       error: (err) => this.saveError.set(this.formatErr(err?.error))
     });
@@ -188,26 +202,29 @@ export class EmployeesComponent implements OnInit {
 
   deleteRow(e: Employee): void {
     if (!e.id) return;
-    if (!window.confirm(`Delete employee ${e.username}?`)) return;
+    if (!window.confirm(`Delete employee "${e.firstName} ${e.lastName}"?`)) return;
     this.api.delete(e.id).subscribe({
-      next: () => this.reload(),
-      error: (err) => window.alert(this.formatErr(err?.error))
+      next: () => {
+        this.reload();
+        this.toast.success(`Employee "${e.firstName} ${e.lastName}" deleted`);
+      },
+      error: (err) => this.toast.error(this.formatErr(err?.error))
     });
   }
 
   exportPdf(): void {
     const f = this.filterForm.getRawValue();
-    this.api.exportPdf(f.q || undefined, f.department || undefined).subscribe({
-      next: (blob) => this.downloadBlob(blob, 'employees.pdf'),
-      error: () => window.alert('PDF export failed (admin only).')
+    this.api.exportPdf(f.q || undefined, f.department || undefined, f.minSalary, f.maxSalary).subscribe({
+      next: (blob) => { this.downloadBlob(blob, 'employees.pdf'); this.toast.info('PDF downloaded'); },
+      error: () => this.toast.error('PDF export failed (admin only)')
     });
   }
 
   exportExcel(): void {
     const f = this.filterForm.getRawValue();
-    this.api.exportExcel(f.q || undefined, f.department || undefined).subscribe({
-      next: (blob) => this.downloadBlob(blob, 'employees.xlsx'),
-      error: () => window.alert('Excel export failed (admin only).')
+    this.api.exportExcel(f.q || undefined, f.department || undefined, f.minSalary, f.maxSalary).subscribe({
+      next: (blob) => { this.downloadBlob(blob, 'employees.xlsx'); this.toast.info('Excel downloaded'); },
+      error: () => this.toast.error('Excel export failed (admin only)')
     });
   }
 
@@ -217,9 +234,9 @@ export class EmployeesComponent implements OnInit {
     if (!p) return [];
     const total = p.totalPages;
     const cur = p.number;
-    const window = 5;
-    const start = Math.max(0, Math.min(cur - 2, total - window));
-    const end = Math.min(total, start + window);
+    const win = 5;
+    const start = Math.max(0, Math.min(cur - 2, total - win));
+    const end = Math.min(total, start + win);
     return Array.from({ length: end - start }, (_, i) => start + i);
   }
 

@@ -2,6 +2,7 @@ package com.employeedb.service.spec;
 
 import com.employeedb.model.Employee;
 import jakarta.persistence.criteria.Predicate;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,7 +11,8 @@ public final class EmployeeSpecs {
 
   private EmployeeSpecs() {}
 
-  public static Specification<Employee> filter(String query, String department) {
+  public static Specification<Employee> filter(
+      String query, String department, BigDecimal minSalary, BigDecimal maxSalary) {
     return (root, cq, cb) -> {
       List<Predicate> p = new ArrayList<>();
       if (query != null && !query.isBlank()) {
@@ -25,10 +27,18 @@ public final class EmployeeSpecs {
       if (department != null && !department.isBlank()) {
         p.add(cb.equal(cb.lower(root.get("department")), department.toLowerCase().trim()));
       }
-      if (p.isEmpty()) {
-        return cb.conjunction();
+      if (minSalary != null) {
+        p.add(cb.greaterThanOrEqualTo(root.get("salary"), minSalary));
       }
-      return cb.and(p.toArray(Predicate[]::new));
+      if (maxSalary != null) {
+        p.add(cb.lessThanOrEqualTo(root.get("salary"), maxSalary));
+      }
+      return p.isEmpty() ? cb.conjunction() : cb.and(p.toArray(Predicate[]::new));
     };
+  }
+
+  /** Backward-compatible overload without salary range. */
+  public static Specification<Employee> filter(String query, String department) {
+    return filter(query, department, null, null);
   }
 }
