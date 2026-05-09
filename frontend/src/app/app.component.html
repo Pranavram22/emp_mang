@@ -1,22 +1,24 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
-  <div class="container-fluid px-4">
-    <a class="navbar-brand fw-semibold" routerLink="/employees">Employee DB</a>
-    <div class="d-flex align-items-center gap-2 ms-auto">
-      @if (!auth.isLoggedIn()) {
-        <a class="btn btn-outline-light btn-sm" routerLink="/login">Login</a>
-        <a class="btn btn-light btn-sm text-primary fw-semibold" routerLink="/register">Sign up</a>
+<nav class="app-navbar d-flex align-items-center">
+  <a class="brand me-auto" routerLink="/employees">
+    👥 Emp<span class="brand-dot">.</span>DB
+  </a>
+
+  <div class="d-flex align-items-center gap-2">
+    @if (!auth.isLoggedIn()) {
+      <a class="btn-nav" routerLink="/login">Log in</a>
+      <a class="btn-nav solid" routerLink="/register">Sign up</a>
+    } @else {
+      <span class="nav-user d-none d-sm-inline">{{ auth.username() }}</span>
+      @if (auth.isAdmin()) {
+        <span class="badge-role admin">Admin</span>
       } @else {
-        <span class="navbar-text text-white small opacity-75 d-none d-sm-inline">{{ auth.username() }}</span>
-        @if (auth.isAdmin()) {
-          <span class="badge rounded-pill text-bg-warning">Admin</span>
-        } @else {
-          <span class="badge rounded-pill text-bg-light text-secondary">User</span>
-        }
-        <button type="button" class="btn btn-outline-light btn-sm" (click)="logout()">Logout</button>
+        <span class="badge-role user">User</span>
       }
-    </div>
+      <button class="btn-nav" (click)="logout()">Log out</button>
+    }
   </div>
 </nav>
-<main class="container-fluid px-4">
+
+<main class="container-fluid px-3 px-md-4 py-4">
   <router-outlet />
 </main>
