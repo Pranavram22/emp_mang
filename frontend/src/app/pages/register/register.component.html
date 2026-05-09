@@ -1,11 +1,10 @@
 <div class="auth-wrap">
   <div class="auth-card">
-    <div class="auth-logo">✨</div>
     <h1>Create account</h1>
-    <p class="sub">New accounts are assigned the <strong>User</strong> role</p>
+    <p class="sub">New accounts are assigned the User role</p>
 
     @if (errorMsg()) {
-      <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:.6rem;font-size:.84rem;">
+      <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:.45rem;font-size:.83rem;">
         {{ errorMsg() }}
       </div>
     }
@@ -16,7 +15,7 @@
         <input id="ru" class="form-control" formControlName="username"
                autocomplete="username" placeholder="e.g. john_doe" />
         @if (form.controls.username.invalid && form.controls.username.touched) {
-          <div class="field-err">3–50 chars · letters, digits, underscore only</div>
+          <div class="field-err">3–50 chars — letters, digits, underscore only</div>
         }
       </div>
 
@@ -32,13 +31,13 @@
       <div class="mb-4">
         <label class="form-label" for="rp">Password</label>
         <input id="rp" type="password" class="form-control" formControlName="password"
-               autocomplete="new-password" placeholder="Min 6 characters" />
+               autocomplete="new-password" placeholder="Minimum 6 characters" />
         @if (form.controls.password.invalid && form.controls.password.touched) {
           <div class="field-err">At least 6 characters</div>
         }
       </div>
 
-      <button type="submit" class="btn-auth">Create account →</button>
+      <button type="submit" class="btn-auth">Create account</button>
     </form>
 
     <p class="switch-link">Already have an account? <a routerLink="/login">Sign in</a></p>

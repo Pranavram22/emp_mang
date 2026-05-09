@@ -1,11 +1,10 @@
 <div class="auth-wrap">
   <div class="auth-card">
-    <div class="auth-logo">🔐</div>
     <h1>Welcome back</h1>
-    <p class="sub">Sign in to your account to continue</p>
+    <p class="sub">Sign in to continue to Employee DB</p>
 
     @if (errorMsg()) {
-      <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:.6rem;font-size:.84rem;">
+      <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:.45rem;font-size:.83rem;">
         {{ errorMsg() }}
       </div>
     }
@@ -16,7 +15,7 @@
         <input id="lu" class="form-control" formControlName="username"
                autocomplete="username" placeholder="Enter your username" />
         @if (form.controls.username.invalid && form.controls.username.touched) {
-          <div class="field-err">3–50 chars · letters, digits, underscore only</div>
+          <div class="field-err">3–50 chars — letters, digits, underscore only</div>
         }
       </div>
 
@@ -29,16 +28,16 @@
         }
       </div>
 
-      <button type="submit" class="btn-auth">Sign in →</button>
+      <button type="submit" class="btn-auth">Sign in</button>
     </form>
 
     <p class="switch-link">No account? <a routerLink="/register">Create one</a></p>
 
-    <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px dashed #ede7f6;">
-      <p style="font-size:.75rem;color:#90a4ae;text-align:center;margin:0;">
-        Demo logins &nbsp;·&nbsp;
-        <strong style="color:#3949ab;">admin</strong> / admin123 &nbsp;|&nbsp;
-        <strong style="color:#3949ab;">user1</strong> / user123
+    <div style="margin-top:1.5rem;padding-top:1.1rem;border-top:1px solid #f0f0f0;">
+      <p style="font-size:.74rem;color:#aaa;text-align:center;margin:0;">
+        Demo &nbsp;—&nbsp;
+        <strong style="color:#111;">admin</strong> / admin123 &nbsp;|&nbsp;
+        <strong style="color:#111;">user1</strong> / user123
       </p>
     </div>
   </div>
