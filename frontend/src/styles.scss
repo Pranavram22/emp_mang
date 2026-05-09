@@ -1,19 +1,73 @@
 @use "bootstrap/scss/bootstrap";
 
 body {
-  background-color: #f4f4f4;
+  background-color: #f0f0f0;
   font-family: Arial, sans-serif;
   font-size: 14px;
 }
 
-.navbar-brand {
-  font-weight: bold;
-  letter-spacing: 1px;
+/* ── Navbar ─────────────────────────────────── */
+.main-navbar {
+  background-color: #1a1a2e;
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
+.main-navbar .brand-name {
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+
+.main-navbar .brand-sub {
+  font-size: 11px;
+  color: #aaaaaa;
+  display: block;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.main-navbar .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.main-navbar .user-name {
+  color: #bbbbbb;
+  font-size: 13px;
+}
+
+/* ── Page ────────────────────────────────────── */
+.page-wrap {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.section-sub {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+/* ── Table ───────────────────────────────────── */
 .table th {
   background-color: #e9ecef;
-  font-size: 13px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .table td {
@@ -21,23 +75,34 @@ body {
   vertical-align: middle;
 }
 
-.card {
-  border-radius: 4px;
-}
-
-input.form-control, select.form-select {
-  font-size: 13px;
-}
-
-.dept-badge {
-  background: #e2e3e5;
-  color: #383d41;
+/* ── Dept tag ────────────────────────────────── */
+.dept-tag {
+  background: #dee2e6;
+  color: #495057;
   font-size: 11px;
-  padding: 2px 7px;
+  padding: 2px 8px;
   border-radius: 3px;
   font-weight: 600;
 }
 
-.page-link {
-  font-size: 13px;
+/* ── Auth card ───────────────────────────────── */
+.auth-box {
+  max-width: 380px;
+  margin: 60px auto 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 32px 28px;
+}
+
+.auth-box h4 {
+  margin-bottom: 6px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.auth-box .hint {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 20px;
 }

@@ -1,26 +1,30 @@
-<div>
-  <!-- Top bar -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0">Employee List</h5>
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+      <div class="section-title">Employees</div>
+      <div class="section-sub">Total: {{ pageData()?.totalElements ?? 0 }} employees</div>
+    </div>
     <div class="d-flex gap-2">
       @if (auth.isAdmin()) {
         <button class="btn btn-outline-secondary btn-sm" (click)="exportPdf()">Export PDF</button>
         <button class="btn btn-outline-secondary btn-sm" (click)="exportExcel()">Export Excel</button>
       }
-      <button class="btn btn-dark btn-sm" (click)="openCreate()">Add Employee</button>
+      <button class="btn btn-dark btn-sm" (click)="openCreate()">+ Add Employee</button>
     </div>
   </div>
 
-  <!-- Filter bar -->
+  <!-- Search & Filter -->
   <div class="card mb-3">
-    <div class="card-body py-2 px-3">
+    <div class="card-body py-2">
       <form [formGroup]="filterForm" class="row g-2 align-items-end" (ngSubmit)="applyFilters()">
-        <div class="col-md-4">
-          <label class="form-label mb-1" style="font-size:12px;">Search</label>
-          <input class="form-control form-control-sm" formControlName="q" placeholder="Name, email, username..." />
+        <div class="col-md-5">
+          <label class="form-label mb-1" style="font-size:12px;">Search by name / email / username</label>
+          <input class="form-control form-control-sm" formControlName="q" placeholder="Type to search..." />
         </div>
         <div class="col-md-3">
-          <label class="form-label mb-1" style="font-size:12px;">Department</label>
+          <label class="form-label mb-1" style="font-size:12px;">Filter by department</label>
           <input class="form-control form-control-sm" formControlName="department" placeholder="Department" />
         </div>
         <div class="col-md-2">
@@ -32,10 +36,10 @@
             <option value="lastName,desc">Name Z-A</option>
           </select>
         </div>
-        <div class="col-md-3 d-flex gap-2">
-          <button type="submit" class="btn btn-dark btn-sm">Search</button>
+        <div class="col-md-2 d-flex gap-2 pt-1">
+          <button type="submit" class="btn btn-dark btn-sm flex-grow-1">Search</button>
           <button type="button" class="btn btn-outline-secondary btn-sm"
-            (click)="filterForm.reset({ q: '', department: '' }); applyFilters()">Clear</button>
+            (click)="filterForm.reset({ q: '', department: '' }); applyFilters()">Reset</button>
         </div>
       </form>
     </div>
@@ -43,9 +47,9 @@
 
   <!-- Loading -->
   @if (loading()) {
-    <div class="text-center py-5">
-      <div class="spinner-border spinner-border-sm" role="status"></div>
-      <span class="ms-2 text-muted" style="font-size:13px;">Loading...</span>
+    <div class="text-center py-5 text-muted" style="font-size:13px;">
+      <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+      Loading employees...
     </div>
   }
 
@@ -54,14 +58,16 @@
     <div class="card">
       <div class="table-responsive">
         @if ((pageData()?.content?.length ?? 0) === 0) {
-          <div class="text-center text-muted py-5" style="font-size:13px;">No employees found.</div>
+          <div class="text-center text-muted py-5" style="font-size:13px;">
+            No employees found. Try a different search.
+          </div>
         } @else {
-          <table class="table table-bordered table-hover mb-0">
+          <table class="table table-hover table-bordered mb-0">
             <thead>
               <tr>
                 <th>#</th>
-                <th>Username</th>
                 <th>Name</th>
+                <th>Username</th>
                 <th>Email</th>
                 <th>Age</th>
                 <th>Mobile</th>
@@ -74,21 +80,23 @@
               @for (e of pageData()!.content; track e.id) {
                 <tr>
                   <td class="text-muted">{{ e.id }}</td>
+                  <td><strong>{{ e.firstName }} {{ e.lastName }}</strong></td>
                   <td>{{ e.username }}</td>
-                  <td>{{ e.firstName }} {{ e.lastName }}</td>
                   <td>{{ e.email }}</td>
                   <td>{{ e.age }}</td>
                   <td>{{ e.mobile }}</td>
                   <td>
                     @if (e.department) {
-                      <span class="dept-badge">{{ e.department }}</span>
-                    } @else { — }
+                      <span class="dept-tag">{{ e.department }}</span>
+                    } @else {
+                      <span class="text-muted">—</span>
+                    }
                   </td>
                   <td>{{ e.salary != null ? (e.salary | number:'1.0-0') : '—' }}</td>
                   <td>
-                    <button class="btn btn-outline-primary btn-sm me-1" (click)="openEdit(e)">Edit</button>
+                    <button class="btn btn-sm btn-outline-primary me-1" (click)="openEdit(e)">Edit</button>
                     @if (auth.isAdmin()) {
-                      <button class="btn btn-outline-danger btn-sm" (click)="deleteRow(e)">Delete</button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="deleteRow(e)">Delete</button>
                     }
                   </td>
                 </tr>
@@ -100,24 +108,25 @@
 
       <!-- Pagination -->
       @if ((pageData()?.totalPages ?? 0) > 1) {
-        <div class="card-footer d-flex justify-content-between align-items-center py-2">
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center py-2">
           <small class="text-muted">
-            Page {{ (pageData()?.number ?? 0) + 1 }} of {{ pageData()?.totalPages }}
-            ({{ pageData()?.totalElements }} total)
+            Showing page {{ (pageData()?.number ?? 0) + 1 }} of {{ pageData()?.totalPages }}
           </small>
-          <ul class="pagination pagination-sm mb-0">
-            <li class="page-item" [class.disabled]="pageData()?.first">
-              <button class="page-link" (click)="prev()">Prev</button>
-            </li>
-            @for (pn of pageNumbers(); track pn) {
-              <li class="page-item" [class.active]="pn === pageData()?.number">
-                <button class="page-link" (click)="setPage(pn)">{{ pn + 1 }}</button>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="pageData()?.first">
+                <button class="page-link" (click)="prev()">Prev</button>
               </li>
-            }
-            <li class="page-item" [class.disabled]="pageData()?.last">
-              <button class="page-link" (click)="next()">Next</button>
-            </li>
-          </ul>
+              @for (pn of pageNumbers(); track pn) {
+                <li class="page-item" [class.active]="pn === pageData()?.number">
+                  <button class="page-link" (click)="setPage(pn)">{{ pn + 1 }}</button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="pageData()?.last">
+                <button class="page-link" (click)="next()">Next</button>
+              </li>
+            </ul>
+          </nav>
         </div>
       }
     </div>
@@ -130,9 +139,11 @@
       <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
            (mousedown)="$event.stopPropagation()">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">{{ editingId() === null ? 'Add Employee' : 'Edit Employee' }}</h5>
-            <button type="button" class="btn-close" (click)="closeModal()"></button>
+          <div class="modal-header" style="background:#1a1a2e;">
+            <h5 class="modal-title text-white">
+              {{ editingId() === null ? 'Add New Employee' : 'Edit Employee' }}
+            </h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
           </div>
           <div class="modal-body">
             @if (saveError()) {
@@ -170,7 +181,7 @@
                   }
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Mobile</label>
+                  <label class="form-label">Mobile Number</label>
                   <input class="form-control form-control-sm" formControlName="mobile" maxlength="10" inputmode="numeric" />
                   @if (empForm.controls.mobile.invalid && empForm.controls.mobile.touched) {
                     <small class="text-danger">Exactly 10 digits</small>
@@ -178,22 +189,23 @@
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Salary</label>
-                  <input type="number" class="form-control form-control-sm" formControlName="salary" step="1000" min="0" />
+                  <input type="number" class="form-control form-control-sm" formControlName="salary" min="0" />
                 </div>
                 <div class="col-12">
                   <label class="form-label">Department</label>
-                  <input class="form-control form-control-sm" formControlName="department" />
+                  <input class="form-control form-control-sm" formControlName="department" placeholder="e.g. Engineering" />
                 </div>
               </div>
             </form>
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary btn-sm" (click)="closeModal()">Cancel</button>
-            <button class="btn btn-dark btn-sm" (click)="save()">Save</button>
+            <button class="btn btn-dark btn-sm" (click)="save()">Save Employee</button>
           </div>
         </div>
       </div>
     </div>
     <div class="modal-backdrop fade show"></div>
   }
+
 </div>

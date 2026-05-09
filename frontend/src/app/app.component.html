@@ -1,11 +1,15 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-  <a class="navbar-brand" routerLink="/employees">Employee DB</a>
-  <div class="ms-auto d-flex align-items-center gap-2">
+<div class="main-navbar">
+  <a class="brand-name" routerLink="/employees">
+    Employee Database
+    <span class="brand-sub">Management System</span>
+  </a>
+
+  <div class="nav-right">
     @if (!auth.isLoggedIn()) {
       <a class="btn btn-outline-light btn-sm" routerLink="/login">Login</a>
       <a class="btn btn-light btn-sm" routerLink="/register">Register</a>
     } @else {
-      <span class="text-white-50 small">{{ auth.username() }}</span>
+      <span class="user-name">{{ auth.username() }}</span>
       @if (auth.isAdmin()) {
         <span class="badge bg-warning text-dark">Admin</span>
       } @else {
@@ -14,8 +18,6 @@
       <button class="btn btn-outline-light btn-sm" (click)="logout()">Logout</button>
     }
   </div>
-</nav>
-
-<div class="container-fluid px-4 py-3">
-  <router-outlet />
 </div>
+
+<router-outlet />
