@@ -1,241 +1,302 @@
-# Employee Database
+# 🗃️ Employee Database System
 
-A full-stack Employee Management System built with:
+A full-stack **Employee Management System** with role-based access control, built as a college project.
 
-- **Backend** — Spring Boot 3.2 · Spring Security (JWT) · JPA/MySQL · springdoc Swagger · iText (PDF) · Apache POI (Excel)
-- **Frontend** — Angular 19 · Bootstrap 5 · Reactive Forms
-
----
-
-## Features
-
-| Feature | Details |
+| Layer | Technology |
 |---|---|
-| Authentication | Login & Sign-up with JWT tokens |
-| Role-based access | **ADMIN** and **USER** roles |
-| Employee CRUD | Create, Read (single + all), Update, Delete |
-| Search & Filter | Search by name/email/username; filter by department |
-| Pagination | Server-side pagination with page controls |
-| Validation | Client-side (Angular) + Server-side (Bean Validation) with regex rules |
-| Export to PDF | Admin only — iText 8 |
-| Export to Excel | Admin only — Apache POI |
-| API Documentation | Swagger UI at `/swagger-ui.html` |
+| Backend | Spring Boot 3.2 · Spring Security · JWT · JPA · MySQL |
+| Frontend | Angular 19 · Bootstrap 5 · Reactive Forms |
+| API Docs | Swagger / OpenAPI (springdoc) |
+| Export | iText 8 (PDF) · Apache POI (Excel) |
 
 ---
 
-## Running on Windows (Fresh Install)
+## 📋 Features
 
-Follow these steps **in order** on a brand new Windows machine.
-
----
-
-### Step 1 — Install Java 17
-
-1. Go to **https://adoptium.net**
-2. Download **Temurin 17 (LTS)** → Windows → `.msi` installer
-3. Run the installer — tick **"Set JAVA_HOME"** and **"Add to PATH"** during setup
-4. Verify in a new Command Prompt:
-   ```cmd
-   java -version
-   ```
-   You should see `openjdk version "17.x.x"`
+- **Login & Sign-up** with JWT authentication
+- **Role-Based Access Control** — Admin and User roles
+- **Employee CRUD** — Create, Read (single & all), Update, Delete
+- **Search** by name, email, or username
+- **Filter** by department
+- **Pagination** — server-side with page navigation
+- **Client-side + Server-side Validation** with regex rules
+- **Export to PDF** (Admin only) — powered by iText
+- **Export to Excel** (Admin only) — powered by Apache POI
+- **Swagger UI** — interactive API documentation
 
 ---
 
-### Step 2 — Install Maven
+## 🖥️ Tech Stack
 
-1. Go to **https://maven.apache.org/download.cgi**
-2. Download the **Binary zip archive** (e.g. `apache-maven-3.9.x-bin.zip`)
-3. Extract it to `C:\Program Files\Maven\`
-4. Add Maven to PATH:
-   - Search **"Environment Variables"** in Windows search
-   - Under **System Variables** → find `Path` → click Edit → New
-   - Add: `C:\Program Files\Maven\apache-maven-3.9.x\bin`
-5. Verify in a new Command Prompt:
-   ```cmd
-   mvn -version
-   ```
+### Backend
+- **Java 17**
+- **Spring Boot 3.2**
+- **Spring Security** + **JWT** (jjwt 0.12)
+- **Spring Data JPA** + **Hibernate**
+- **MySQL** database
+- **springdoc OpenAPI** (Swagger UI)
+- **iText 8** (PDF export)
+- **Apache POI 5** (Excel export)
+- **Bean Validation** (server-side regex rules)
 
----
-
-### Step 3 — Install Node.js
-
-1. Go to **https://nodejs.org**
-2. Download the **LTS version** (e.g. 20.x) → Windows Installer `.msi`
-3. Run the installer (keep all defaults)
-4. Verify in a new Command Prompt:
-   ```cmd
-   node -v
-   npm -v
-   ```
+### Frontend
+- **Angular 19** (standalone components)
+- **Bootstrap 5** (via SCSS)
+- **Angular Reactive Forms** (client-side validation)
+- **RxJS** (HTTP + interceptors)
 
 ---
 
-### Step 4 — Install MySQL
+## 🚀 Getting Started (Windows)
 
-1. Go to **https://dev.mysql.com/downloads/installer/**
-2. Download **MySQL Installer for Windows** (the full `mysql-installer-community` version)
-3. Run the installer → choose **"Developer Default"** setup type → click Execute (installs MySQL Server + tools)
-4. During configuration:
-   - Authentication Method → **Use Legacy Authentication Method** (easier for local dev)
-   - Set a **root password** (remember it)
-   - Leave port as **3306**
-5. Finish installation
-6. Verify — open **MySQL Command Line Client** from Start Menu and log in with root password
+### Prerequisites — Install these first
+
+#### 1. Java 17
+- Download from **https://adoptium.net** → Temurin 17 LTS → Windows `.msi`
+- During install: tick ✅ **Set JAVA_HOME** and ✅ **Add to PATH**
+- Verify:
+  ```cmd
+  java -version
+  ```
+
+#### 2. Maven
+- Download from **https://maven.apache.org/download.cgi** → Binary zip
+- Extract to `C:\Program Files\Maven\`
+- Add `C:\Program Files\Maven\apache-maven-3.9.x\bin` to **System PATH**
+- Verify:
+  ```cmd
+  mvn -version
+  ```
+
+#### 3. Node.js (LTS)
+- Download from **https://nodejs.org** → LTS → Windows `.msi`
+- Verify:
+  ```cmd
+  node -v
+  npm -v
+  ```
+
+#### 4. MySQL
+- Download from **https://dev.mysql.com/downloads/installer/** → Community Installer
+- Setup type: **Developer Default**
+- Set a root password during configuration
+- Leave port as **3306**
 
 ---
 
-### Step 5 — Create the Database
+### Step 1 — Create the Database
 
-Open **MySQL Command Line Client** (or MySQL Workbench) and run:
+Open **MySQL Command Line Client** and run:
 
 ```sql
-CREATE DATABASE IF NOT EXISTS employeedb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS 'empuser'@'localhost' IDENTIFIED BY 'emppass123';
+CREATE DATABASE IF NOT EXISTS employeedb
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'empuser'@'localhost'
+  IDENTIFIED BY 'emppass123';
+
 GRANT ALL PRIVILEGES ON employeedb.* TO 'empuser'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
 ---
 
-### Step 6 — Download the Project
+### Step 2 — Clone the Project
 
-Option A — with Git:
 ```cmd
 git clone https://github.com/YOUR_USERNAME/employee-db.git
 cd employee-db
 ```
 
-Option B — without Git:
-- Go to the GitHub repo → click **Code → Download ZIP**
-- Extract the ZIP somewhere (e.g. `C:\Projects\employee-db`)
+> Or download the ZIP from GitHub → Code → Download ZIP → extract it.
 
 ---
 
-### Step 7 — Start the Backend
+### Step 3 — Start the Backend
 
-Open a **Command Prompt** in the `backend` folder:
+Open a Command Prompt in the `backend` folder:
 
 ```cmd
-cd C:\Projects\employee-db\backend
+cd employee-db\backend
 mvn spring-boot:run
 ```
 
-Wait until you see:
+Wait for:
 ```
 Started EmployeeDbApplication in X seconds
 ```
 
-The API is now running at **http://localhost:8080**
+✅ API running at **http://localhost:8080**
+
+> Tables are **auto-created** by Hibernate on first run.
+> Seed accounts (`admin`, `user1`) are inserted automatically.
 
 ---
 
-### Step 8 — Start the Frontend
+### Step 4 — Start the Frontend
 
-Open a **second Command Prompt** in the `frontend` folder:
+Open a **second** Command Prompt in the `frontend` folder:
 
 ```cmd
-cd C:\Projects\employee-db\frontend
+cd employee-db\frontend
 npm install
 npm start
 ```
 
-Wait until you see:
+Wait for:
 ```
-Local: http://localhost:4200/
+Local:   http://localhost:4200/
 ```
+
+✅ App running at **http://localhost:4200**
 
 ---
 
-### Step 9 — Open the App
+## 🔐 Demo Accounts
 
-Go to **http://localhost:4200** in your browser.
+| Username | Password | Role | Permissions |
+|---|---|---|---|
+| `admin` | `admin123` | ADMIN | All features including delete & export |
+| `user1` | `user123` | USER | View, create, edit only |
 
-| Username | Password | Role |
-|---|---|---|
-| `admin` | `admin123` | Full access (delete, export PDF/Excel) |
-| `user1` | `user123` | View, create, edit only |
+> New accounts created via Sign-up are always assigned the **USER** role.
 
 ---
 
-## Useful URLs
+## 🌐 URLs
 
 | URL | Description |
 |---|---|
-| http://localhost:4200 | Angular frontend |
-| http://localhost:8080/swagger-ui.html | API documentation (Swagger) |
+| http://localhost:4200 | Frontend (Angular app) |
+| http://localhost:8080/swagger-ui.html | Swagger API docs |
 | http://localhost:8080/api-docs | Raw OpenAPI JSON |
 
 ---
 
-## Stopping the Servers
-
-- Press **Ctrl + C** in each Command Prompt window
-
----
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 employee-db/
-├── backend/                          # Spring Boot API
+│
+├── backend/                              # Spring Boot API
 │   ├── pom.xml
 │   └── src/main/java/com/employeedb/
-│       ├── config/                   # OpenAPI config, data seed
-│       ├── dto/                      # Request/response DTOs
-│       ├── model/                    # JPA entities (Employee, AppUser, Role)
-│       ├── repo/                     # Spring Data JPA repositories
-│       ├── security/                 # JWT filter, UserDetails, SecurityConfig
-│       ├── service/                  # Business logic + PDF/Excel export
-│       └── web/                      # REST controllers + exception handler
+│       ├── config/
+│       │   ├── DataInitializer.java      # Seeds admin & user1 on startup
+│       │   └── OpenApiConfig.java        # Swagger / JWT security scheme
+│       ├── dto/                          # LoginRequest, RegisterRequest, AuthResponse
+│       ├── model/                        # Employee, AppUser, Role (enum)
+│       ├── repo/                         # Spring Data JPA repositories
+│       ├── security/
+│       │   ├── JwtService.java           # Token generate / validate
+│       │   ├── JwtAuthFilter.java        # Bearer token filter
+│       │   ├── SecurityConfig.java       # CORS, role rules, stateless session
+│       │   └── AppUserDetails.java       # UserDetails adapter
+│       ├── service/
+│       │   ├── AuthService.java          # Register & authenticate
+│       │   ├── EmployeeService.java      # CRUD + search/filter logic
+│       │   ├── spec/EmployeeSpecs.java   # JPA Specifications (dynamic query)
+│       │   └── export/
+│       │       ├── EmployeePdfExportService.java
+│       │       └── EmployeeExcelExportService.java
+│       └── web/
+│           ├── AuthController.java       # /api/auth/**
+│           ├── EmployeeController.java   # /api/employees/**
+│           └── GlobalExceptionHandler.java
 │
-└── frontend/                         # Angular 19 app
+└── frontend/                             # Angular 19 app
     └── src/app/
-        ├── core/                     # Auth service, Employee service, interceptor, guard
+        ├── core/
+        │   ├── auth.service.ts           # Login, register, session (signal-based)
+        │   ├── auth.guard.ts             # Route guard
+        │   ├── auth.interceptor.ts       # Attaches Bearer token to requests
+        │   ├── employee.service.ts       # CRUD + export API calls
+        │   └── models.ts                 # TypeScript interfaces
         └── pages/
-            ├── login/
-            ├── register/
-            └── employees/            # CRUD table, search/filter/pagination, modal form
+            ├── login/                    # Login form
+            ├── register/                 # Sign-up form
+            └── employees/               # Main table, modal form, pagination
 ```
 
 ---
 
-## API Quick Reference
+## 📡 API Reference
 
-All employee endpoints require `Authorization: Bearer <token>` header.
+All endpoints under `/api/employees/**` require:
+```
+Authorization: Bearer <your_jwt_token>
+```
 
 | Method | Endpoint | Role | Description |
 |---|---|---|---|
-| POST | `/api/auth/register` | Public | Sign up |
-| POST | `/api/auth/login` | Public | Log in, get token |
-| GET | `/api/employees?q=&department=&page=&size=` | USER/ADMIN | List with search + filter + pagination |
-| GET | `/api/employees/{id}` | USER/ADMIN | Get one employee |
-| POST | `/api/employees` | USER/ADMIN | Create employee |
-| PUT | `/api/employees/{id}` | USER/ADMIN | Update employee |
-| DELETE | `/api/employees/{id}` | ADMIN | Delete employee |
-| GET | `/api/employees/export/pdf` | ADMIN | Download PDF |
-| GET | `/api/employees/export/excel` | ADMIN | Download Excel |
+| POST | `/api/auth/register` | Public | Create account (USER role) |
+| POST | `/api/auth/login` | Public | Login, receive JWT token |
+| GET | `/api/employees` | USER / ADMIN | List employees (search, filter, page) |
+| GET | `/api/employees/{id}` | USER / ADMIN | Get single employee |
+| POST | `/api/employees` | USER / ADMIN | Create employee |
+| PUT | `/api/employees/{id}` | USER / ADMIN | Update employee |
+| DELETE | `/api/employees/{id}` | ADMIN only | Delete employee |
+| GET | `/api/employees/export/pdf` | ADMIN only | Download PDF report |
+| GET | `/api/employees/export/excel` | ADMIN only | Download Excel report |
+
+### Query Parameters (GET /api/employees)
+
+| Param | Type | Description |
+|---|---|---|
+| `q` | string | Search username, email, first/last name |
+| `department` | string | Filter by exact department name |
+| `page` | int | Page number (0-based, default 0) |
+| `size` | int | Page size (default 10) |
+| `sort` | string | e.g. `lastName,asc` or `id,desc` |
 
 ---
 
-## Validation Rules
+## ✅ Validation Rules
+
+Applied on **both** Angular (client) and Spring Boot (server):
 
 | Field | Rule |
 |---|---|
-| Username | `^[a-zA-Z0-9_]{3,50}$` |
+| Username | `^[a-zA-Z0-9_]{3,50}$` — letters, digits, underscore |
 | Email | Valid email format |
-| Age | 18 – 100 |
+| Age | Between 18 and 100 |
 | Mobile | Exactly 10 digits |
-| Password | Min 6 characters |
-
-Rules are enforced on **both** client (Angular) and server (Spring Boot).
+| Password | Minimum 6 characters |
 
 ---
 
-## Database
+## 🗄️ Database
 
-- **MySQL** running on `localhost:3306`
-- Database: `employeedb`
-- User: `empuser` / Password: `emppass123`
-- Tables are **auto-created** by Hibernate on first run (`spring.jpa.hibernate.ddl-auto=update`)
-- Seed data (admin + user1 accounts, 1 sample employee) is inserted automatically on startup
+| Setting | Value |
+|---|---|
+| Engine | MySQL 8+ |
+| Host | `localhost:3306` |
+| Database | `employeedb` |
+| Username | `empuser` |
+| Password | `emppass123` |
+
+Connection string (in `application.properties`):
+```
+jdbc:mysql://localhost:3306/employeedb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+```
+
+---
+
+## ⚙️ Configuration
+
+`backend/src/main/resources/application.properties`
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/employeedb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+spring.datasource.username=empuser
+spring.datasource.password=emppass123
+spring.jpa.hibernate.ddl-auto=update
+jwt.secret=changeme-use-a-long-secret-key-at-least-256-bits-for-hs256-xxxxx
+jwt.expiration-ms=86400000
+```
+
+---
+
+## 🛑 Stopping the Servers
+
+Press **Ctrl + C** in each Command Prompt window.
