@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthResponse, UserRole } from './models';
 
@@ -66,5 +67,12 @@ export class AuthService {
 
   register(body: RegisterBody) {
     return this.http.post<AuthResponse>(`${this.api}/api/auth/register`, body);
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.api}/api/auth/change-password`, {
+      currentPassword,
+      newPassword
+    });
   }
 }

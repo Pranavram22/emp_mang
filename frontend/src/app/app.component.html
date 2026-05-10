@@ -16,7 +16,9 @@
       <a class="btn btn-outline-light btn-sm" routerLink="/login">Login</a>
       <a class="btn btn-light btn-sm" routerLink="/register">Register</a>
     } @else {
-      <span class="user-name">{{ auth.username() }}</span>
+      <button class="user-name btn-plain" (click)="openChangePw()" title="Change password">
+        {{ auth.username() }}
+      </button>
       @if (auth.isAdmin()) {
         <span class="badge bg-warning text-dark">Admin</span>
       } @else {
@@ -29,3 +31,59 @@
 
 <router-outlet />
 <app-toast />
+
+<!-- Change Password Modal -->
+@if (changePwOpen()) {
+  <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
+       (mousedown)="closeChangePw()">
+    <div class="modal-dialog modal-dialog-centered" (mousedown)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header" style="background:#1a1a2e;">
+          <h5 class="modal-title text-white">Change Password</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="closeChangePw()"></button>
+        </div>
+        <div class="modal-body">
+          @if (changePwError()) {
+            <div class="alert alert-danger py-2" style="font-size:13px;">{{ changePwError() }}</div>
+          }
+          <div style="font-size:12px;color:#888;margin-bottom:14px;">
+            Logged in as <strong>{{ auth.username() }}</strong>
+          </div>
+          <form [formGroup]="changePwForm">
+            <div class="mb-3">
+              <label class="form-label">Current Password</label>
+              <input type="password" class="form-control form-control-sm"
+                     formControlName="currentPassword" autocomplete="current-password" />
+              @if (changePwForm.controls.currentPassword.invalid && changePwForm.controls.currentPassword.touched) {
+                <small class="text-danger">Required</small>
+              }
+            </div>
+            <div class="mb-3">
+              <label class="form-label">New Password</label>
+              <input type="password" class="form-control form-control-sm"
+                     formControlName="newPassword" autocomplete="new-password" />
+              @if (changePwForm.controls.newPassword.invalid && changePwForm.controls.newPassword.touched) {
+                <small class="text-danger">Minimum 6 characters</small>
+              }
+            </div>
+            <div class="mb-0">
+              <label class="form-label">Confirm New Password</label>
+              <input type="password" class="form-control form-control-sm"
+                     formControlName="confirmPassword" autocomplete="new-password" />
+              @if (changePwForm.controls.confirmPassword.invalid && changePwForm.controls.confirmPassword.touched) {
+                <small class="text-danger">Required</small>
+              }
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary btn-sm" (click)="closeChangePw()">Cancel</button>
+          <button class="btn btn-dark btn-sm" (click)="submitChangePw()" [disabled]="changePwLoading()">
+            {{ changePwLoading() ? 'Saving...' : 'Change Password' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+}

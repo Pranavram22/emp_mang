@@ -1,5 +1,6 @@
 package com.employeedb.web;
 
+import com.employeedb.dto.DeptCount;
 import com.employeedb.dto.StatsResponse;
 import com.employeedb.model.Employee;
 import com.employeedb.repo.EmployeeRepository;
@@ -68,6 +69,19 @@ public class StatsController {
         .filter(d -> d != null && !d.isBlank())
         .distinct()
         .sorted()
+        .toList();
+  }
+
+  @GetMapping("/dept-breakdown")
+  @Operation(summary = "Employee count per department")
+  public List<DeptCount> deptBreakdown() {
+    return repo.findAll().stream()
+        .filter(e -> e.getDepartment() != null && !e.getDepartment().isBlank())
+        .collect(java.util.stream.Collectors.groupingBy(
+            Employee::getDepartment, java.util.stream.Collectors.counting()))
+        .entrySet().stream()
+        .map(en -> new DeptCount(en.getKey(), en.getValue()))
+        .sorted(java.util.Comparator.comparingLong(DeptCount::count).reversed())
         .toList();
   }
 }

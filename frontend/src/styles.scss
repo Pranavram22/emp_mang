@@ -176,6 +176,14 @@ body {
 .toast-close:hover { color: #fff; }
 
 /* ── Nav links ────────────────────────────────── */
+/* Invisible button used to make username clickable */
+.btn-plain {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
 .nav-link-item {
   color: #aaaaaa;
   text-decoration: none;

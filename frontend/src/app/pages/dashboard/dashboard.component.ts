@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { StatsService, Stats } from '../../core/stats.service';
+import { StatsService, Stats, DeptCount } from '../../core/stats.service';
 import { AuthService } from '../../core/auth.service';
 
 @Component({
@@ -15,6 +15,7 @@ export class DashboardComponent implements OnInit {
   readonly auth = inject(AuthService);
 
   readonly stats = signal<Stats | null>(null);
+  readonly deptBreakdown = signal<DeptCount[]>([]);
   readonly loading = signal(true);
 
   ngOnInit(): void {
@@ -22,5 +23,6 @@ export class DashboardComponent implements OnInit {
       next: (s) => { this.stats.set(s); this.loading.set(false); },
       error: () => this.loading.set(false)
     });
+    this.statsService.deptBreakdown().subscribe((d) => this.deptBreakdown.set(d));
   }
 }

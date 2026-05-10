@@ -12,6 +12,11 @@ export interface Stats {
   highestSalary: number;
 }
 
+export interface DeptCount {
+  department: string;
+  count: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class StatsService {
   private readonly http = inject(HttpClient);
@@ -23,5 +28,9 @@ export class StatsService {
 
   departments(): Observable<string[]> {
     return this.http.get<string[]>(`${this.api}/api/stats/departments`);
+  }
+
+  deptBreakdown(): Observable<DeptCount[]> {
+    return this.http.get<DeptCount[]>(`${this.api}/api/stats/dept-breakdown`);
   }
 }

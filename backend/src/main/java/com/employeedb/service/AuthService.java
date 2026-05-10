@@ -1,5 +1,6 @@
 package com.employeedb.service;
 
+import com.employeedb.dto.ChangePasswordRequest;
 import com.employeedb.dto.LoginRequest;
 import com.employeedb.dto.RegisterRequest;
 import com.employeedb.model.AppUser;
@@ -7,6 +8,7 @@ import com.employeedb.model.Role;
 import com.employeedb.repo.AppUserRepository;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,5 +50,16 @@ public class AuthService {
     authManager.authenticate(
         new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword()));
     return repo.findByUsername(req.getUsername()).orElseThrow();
+  }
+
+  @Transactional
+  public void changePassword(String username, @Valid ChangePasswordRequest req) {
+    AppUser u = repo.findByUsername(username)
+        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    if (!encoder.matches(req.getCurrentPassword(), u.getPasswordHash())) {
+      throw new BadCredentialsException("Current password is incorrect");
+    }
+    u.setPasswordHash(encoder.encode(req.getNewPassword()));
+    repo.save(u);
   }
 }

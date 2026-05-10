@@ -49,7 +49,17 @@
             <option value="lastName,desc">Name Z-A</option>
           </select>
         </div>
-        <div class="col-md-2 d-flex gap-2 pt-1">
+        <div class="col-md-1">
+          <label class="form-label mb-1" style="font-size:12px;">Show</label>
+          <select class="form-select form-select-sm"
+            [value]="pageSize()"
+            (change)="onPageSizeChange(+$any($event.target).value)">
+            @for (n of pageSizeOptions; track n) {
+              <option [value]="n">{{ n }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-1 d-flex gap-2 pt-1" style="align-self:flex-end;">
           <button type="submit" class="btn btn-dark btn-sm flex-grow-1">Search</button>
           <button type="button" class="btn btn-outline-secondary btn-sm"
             (click)="filterForm.reset({ q: '', department: '', minSalary: null, maxSalary: null }); applyFilters()">Clear</button>

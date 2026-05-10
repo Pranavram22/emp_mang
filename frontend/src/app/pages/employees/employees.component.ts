@@ -40,8 +40,9 @@ export class EmployeesComponent implements OnInit {
 
   readonly sortControl = this.fb.nonNullable.control('id,asc');
 
-  readonly pageSize = 10;
+  readonly pageSize = signal(10);
   readonly currentPageIndex = signal(0);
+  readonly pageSizeOptions = [5, 10, 25, 50];
 
   readonly empForm = this.fb.nonNullable.group({
     username: ['', [Validators.required, Validators.pattern(VALIDATION.usernamePattern)]],
@@ -78,13 +79,19 @@ export class EmployeesComponent implements OnInit {
     this.reload();
   }
 
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
+    this.currentPageIndex.set(0);
+    this.reload();
+  }
+
   reload(): void {
     this.loading.set(true);
     const f = this.filterForm.getRawValue();
     this.api
       .list({
         page: this.currentPageIndex(),
-        size: this.pageSize,
+        size: this.pageSize(),
         q: f.q || undefined,
         department: f.department || undefined,
         sort: this.sortControl.value,
