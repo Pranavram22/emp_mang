@@ -43,7 +43,7 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/h2-console/**")
                     .permitAll()
-                    .requestMatchers("/api/employees/export/**")
+                    .requestMatchers("/api/employees/export/**", "/api/employees/import/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/employees/**")
                     .hasAnyRole("ADMIN", "USER")

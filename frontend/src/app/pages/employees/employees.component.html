@@ -8,6 +8,7 @@
     </div>
     <div class="d-flex gap-2">
       @if (auth.isAdmin()) {
+        <button class="btn btn-outline-secondary btn-sm" (click)="openImport()">Import Excel</button>
         <button class="btn btn-outline-secondary btn-sm" (click)="exportPdf()">Export PDF</button>
         <button class="btn btn-outline-secondary btn-sm" (click)="exportExcel()">Export Excel</button>
       }
@@ -168,6 +169,78 @@
         </div>
       }
     </div>
+  }
+
+  <!-- Import Excel Modal -->
+  @if (importOpen()) {
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
+         (mousedown)="closeImport()">
+      <div class="modal-dialog modal-dialog-centered" (mousedown)="$event.stopPropagation()">
+        <div class="modal-content">
+          <div class="modal-header" style="background:#1a1a2e;">
+            <h5 class="modal-title text-white">Import Employees from Excel</h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeImport()"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3" style="font-size:13px;background:#f8f9fa;border-radius:4px;padding:12px;">
+              <strong>How to import:</strong>
+              <ol style="margin:6px 0 0 0;padding-left:18px;">
+                <li>Download the template below</li>
+                <li>Fill in employee data — one row per employee</li>
+                <li>Required columns: Username, Email, First name, Last name, Age, Mobile</li>
+                <li>Upload the filled file</li>
+              </ol>
+              <button class="btn btn-outline-secondary btn-sm mt-2" (click)="downloadTemplate()">
+                Download Template (.xlsx)
+              </button>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Select Excel File (.xlsx)</label>
+              <input type="file" class="form-control form-control-sm" accept=".xlsx"
+                     (change)="onImportFileChange($event)" />
+              @if (importFile()) {
+                <small class="text-muted mt-1 d-block">Selected: {{ importFile()!.name }}</small>
+              }
+            </div>
+
+            <!-- Results -->
+            @if (importResult()) {
+              <div class="import-result">
+                <div class="d-flex gap-3 mb-2">
+                  <div class="import-stat import-stat-ok">
+                    <span class="import-stat-num">{{ importResult()!.imported }}</span>
+                    <span class="import-stat-lbl">Imported</span>
+                  </div>
+                  <div class="import-stat import-stat-skip">
+                    <span class="import-stat-num">{{ importResult()!.skipped }}</span>
+                    <span class="import-stat-lbl">Skipped</span>
+                  </div>
+                </div>
+                @if (importResult()!.errors.length > 0) {
+                  <div style="max-height:150px;overflow-y:auto;background:#fff5f5;border:1px solid #fcc;border-radius:4px;padding:8px;">
+                    @for (err of importResult()!.errors; track $index) {
+                      <div style="font-size:12px;color:#b02a37;padding:2px 0;">{{ err }}</div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary btn-sm" (click)="closeImport()">
+              {{ importResult()?.imported ? 'Close & Refresh' : 'Cancel' }}
+            </button>
+            <button class="btn btn-dark btn-sm"
+                    (click)="submitImport()"
+                    [disabled]="!importFile() || importLoading()">
+              {{ importLoading() ? 'Importing...' : 'Import' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
   }
 
   <!-- View Employee Modal -->

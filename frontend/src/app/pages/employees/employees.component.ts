@@ -30,6 +30,10 @@ export class EmployeesComponent implements OnInit {
   readonly viewEmployee = signal<Employee | null>(null);
   readonly departments = signal<string[]>([]);
   readonly copiedField = signal<string | null>(null);
+  readonly importOpen = signal(false);
+  readonly importLoading = signal(false);
+  readonly importResult = signal<{ imported: number; skipped: number; errors: string[] } | null>(null);
+  readonly importFile = signal<File | null>(null);
 
   readonly filterForm = this.fb.nonNullable.group({
     q: [''],
@@ -66,6 +70,48 @@ export class EmployeesComponent implements OnInit {
 
   closeView(): void {
     this.viewEmployee.set(null);
+  }
+
+  openImport(): void {
+    this.importResult.set(null);
+    this.importFile.set(null);
+    this.importOpen.set(true);
+  }
+
+  closeImport(): void {
+    this.importOpen.set(false);
+    if (this.importResult()?.imported) this.reload();
+  }
+
+  onImportFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.importFile.set(input.files?.[0] ?? null);
+    this.importResult.set(null);
+  }
+
+  submitImport(): void {
+    const file = this.importFile();
+    if (!file) return;
+    this.importLoading.set(true);
+    this.api.importExcel(file).subscribe({
+      next: (res) => {
+        this.importLoading.set(false);
+        this.importResult.set(res);
+        if (res.imported > 0) this.toast.success(`${res.imported} employee(s) imported successfully`);
+        if (res.skipped > 0) this.toast.error(`${res.skipped} row(s) skipped — see details below`);
+      },
+      error: (err) => {
+        this.importLoading.set(false);
+        this.toast.error(err?.error?.message ?? 'Import failed');
+      }
+    });
+  }
+
+  downloadTemplate(): void {
+    this.api.downloadImportTemplate().subscribe({
+      next: (blob) => this.downloadBlob(blob, 'employee_import_template.xlsx'),
+      error: () => this.toast.error('Failed to download template')
+    });
   }
 
   copyToClipboard(value: string, label: string): void {

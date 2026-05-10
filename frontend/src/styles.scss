@@ -203,6 +203,43 @@ body {
   font-weight: bold;
 }
 
+/* ── Import result ───────────────────────────── */
+.import-result {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.import-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 20px;
+  border-radius: 4px;
+  min-width: 80px;
+}
+
+.import-stat-ok   { background: #d1e7dd; }
+.import-stat-skip { background: #f8d7da; }
+
+.import-stat-num {
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.import-stat-ok   .import-stat-num  { color: #0a3622; }
+.import-stat-skip .import-stat-num  { color: #58151c; }
+
+.import-stat-lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+  color: #555;
+}
+
 /* ── Copy-to-clipboard cell ──────────────────── */
 .copy-cell {
   cursor: pointer;
