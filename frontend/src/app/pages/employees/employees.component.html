@@ -265,6 +265,7 @@
                 <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Department</td><td>{{ viewEmployee()!.department || '—' }}</td></tr>
                 <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Salary</td><td>{{ viewEmployee()!.salary != null ? (viewEmployee()!.salary! | number:'1.0-0') : '—' }}</td></tr>
                 <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Added On</td><td>{{ viewEmployee()!.createdAt ? (viewEmployee()!.createdAt | date:'dd MMM yyyy, hh:mm a') : '—' }}</td></tr>
+                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Added By</td><td>{{ viewEmployee()!.createdBy || '—' }}</td></tr>
               </tbody>
             </table>
           </div>

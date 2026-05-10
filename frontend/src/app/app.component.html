@@ -8,6 +8,9 @@
     <div class="d-flex align-items-center gap-1 mx-auto">
       <a class="nav-link-item" routerLink="/dashboard" routerLinkActive="active-link">Dashboard</a>
       <a class="nav-link-item" routerLink="/employees" routerLinkActive="active-link">Employees</a>
+      @if (auth.isAdmin()) {
+        <a class="nav-link-item nav-admin-link" routerLink="/admin/users" routerLinkActive="active-link">Users</a>
+      }
     </div>
   }
 

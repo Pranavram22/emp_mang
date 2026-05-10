@@ -18,6 +18,7 @@ export interface Employee {
   department?: string | null;
   salary?: number | null;
   createdAt?: string;
+  createdBy?: string;
 }
 
 export interface PageEmployee {

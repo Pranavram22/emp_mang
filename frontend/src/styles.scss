@@ -203,6 +203,13 @@ body {
   font-weight: bold;
 }
 
+.nav-admin-link {
+  color: #ffd700 !important;
+}
+.nav-admin-link:hover {
+  background: rgba(255,215,0,0.15) !important;
+}
+
 /* ── Import result ───────────────────────────── */
 .import-result {
   background: #f8f9fa;

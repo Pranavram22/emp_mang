@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,8 @@ public class EmployeeService {
       throw new IllegalArgumentException("Employee username already exists");
     }
     e.setId(null);
+    String actor = SecurityContextHolder.getContext().getAuthentication().getName();
+    e.setCreatedBy(actor);
     return repo.save(e);
   }
 

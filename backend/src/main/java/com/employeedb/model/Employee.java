@@ -72,6 +72,9 @@ public class Employee {
   @Column(nullable = false)
   private LocalDateTime createdAt = LocalDateTime.now();
 
+  @Column(length = 50)
+  private String createdBy;
+
   public Long getId() {
     return id;
   }
@@ -150,5 +153,13 @@ public class Employee {
 
   public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
+  }
+
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
   }
 }
