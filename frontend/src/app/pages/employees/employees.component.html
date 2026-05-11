@@ -12,37 +12,35 @@
         <button class="btn btn-outline-secondary btn-sm" (click)="exportPdf()">Export PDF</button>
         <button class="btn btn-outline-secondary btn-sm" (click)="exportExcel()">Export Excel</button>
       }
-      <button class="btn btn-dark btn-sm" (click)="openCreate()">+ Add Employee</button>
+      <button class="btn btn-dark btn-sm" (click)="openForm()">+ Add Employee</button>
     </div>
   </div>
 
-  <!-- Search & Filter -->
+  <!-- Filters -->
   <div class="card mb-3">
     <div class="card-body py-2">
       <form [formGroup]="filterForm" class="row g-2 align-items-end" (ngSubmit)="applyFilters()">
         <div class="col-md-4">
-          <label class="form-label mb-1" style="font-size:12px;">Search</label>
+          <label class="form-label fs-xs">Search</label>
           <input class="form-control form-control-sm" formControlName="q" placeholder="Name, email, username..." />
         </div>
         <div class="col-md-3">
-          <label class="form-label mb-1" style="font-size:12px;">Department</label>
+          <label class="form-label fs-xs">Department</label>
           <select class="form-select form-select-sm" formControlName="department">
             <option value="">All departments</option>
-            @for (dept of departments(); track dept) {
-              <option [value]="dept">{{ dept }}</option>
-            }
+            @for (d of departments(); track d) { <option [value]="d">{{ d }}</option> }
           </select>
         </div>
-        <div class="col-md-2">
-          <label class="form-label mb-1" style="font-size:12px;">Min Salary</label>
+        <div class="col-md-1">
+          <label class="form-label fs-xs">Min Salary</label>
           <input type="number" class="form-control form-control-sm" formControlName="minSalary" placeholder="0" min="0" />
         </div>
-        <div class="col-md-2">
-          <label class="form-label mb-1" style="font-size:12px;">Max Salary</label>
+        <div class="col-md-1">
+          <label class="form-label fs-xs">Max Salary</label>
           <input type="number" class="form-control form-control-sm" formControlName="maxSalary" placeholder="∞" min="0" />
         </div>
         <div class="col-md-1">
-          <label class="form-label mb-1" style="font-size:12px;">Sort</label>
+          <label class="form-label fs-xs">Sort</label>
           <select class="form-select form-select-sm" [formControl]="sortControl" (change)="onSortChange()">
             <option value="id,asc">ID ↑</option>
             <option value="id,desc">ID ↓</option>
@@ -51,19 +49,16 @@
           </select>
         </div>
         <div class="col-md-1">
-          <label class="form-label mb-1" style="font-size:12px;">Show</label>
-          <select class="form-select form-select-sm"
-            [value]="pageSize()"
-            (change)="onPageSizeChange(+$any($event.target).value)">
-            @for (n of pageSizeOptions; track n) {
-              <option [value]="n">{{ n }}</option>
-            }
+          <label class="form-label fs-xs">Show</label>
+          <select class="form-select form-select-sm" [value]="pageSize()"
+                  (change)="onPageSizeChange(+$any($event.target).value)">
+            @for (n of pageSizeOptions; track n) { <option [value]="n">{{ n }}</option> }
           </select>
         </div>
-        <div class="col-md-1 d-flex gap-2 pt-1" style="align-self:flex-end;">
+        <div class="col-md-1 d-flex gap-1" style="align-self:flex-end;">
           <button type="submit" class="btn btn-dark btn-sm flex-grow-1">Search</button>
           <button type="button" class="btn btn-outline-secondary btn-sm"
-            (click)="filterForm.reset({ q: '', department: '', minSalary: null, maxSalary: null }); applyFilters()">Clear</button>
+            (click)="filterForm.reset({ q:'', department:'', minSalary:null, maxSalary:null }); applyFilters()">✕</button>
         </div>
       </form>
     </div>
@@ -71,9 +66,8 @@
 
   <!-- Loading -->
   @if (loading()) {
-    <div class="text-center py-5 text-muted" style="font-size:13px;">
-      <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-      Loading employees...
+    <div class="text-center py-5 text-muted fs-sm">
+      <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading employees...
     </div>
   }
 
@@ -82,57 +76,33 @@
     <div class="card">
       <div class="table-responsive">
         @if ((pageData()?.content?.length ?? 0) === 0) {
-          <div class="text-center text-muted py-5" style="font-size:13px;">
-            No employees found. Try a different search.
-          </div>
+          <div class="text-center text-muted py-5 fs-sm">No employees found.</div>
         } @else {
           <table class="table table-hover table-bordered mb-0">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Age</th>
-                <th>Mobile</th>
-                <th>Department</th>
-                <th>Salary</th>
-                <th>Action</th>
+                <th>#</th><th>Name</th><th>Username</th><th>Email</th>
+                <th>Age</th><th>Mobile</th><th>Department</th><th>Salary</th><th>Action</th>
               </tr>
             </thead>
             <tbody>
               @for (e of pageData()!.content; track e.id) {
                 <tr>
                   <td class="text-muted">{{ e.id }}</td>
-                  <td>
-                    <a href="#" class="text-dark fw-bold text-decoration-none"
-                       (click)="$event.preventDefault(); openView(e)">
-                      {{ e.firstName }} {{ e.lastName }}
-                    </a>
-                  </td>
+                  <td><a href="#" class="text-dark fw-bold text-decoration-none"
+                         (click)="$event.preventDefault(); openView(e)">{{ e.firstName }} {{ e.lastName }}</a></td>
                   <td>{{ e.username }}</td>
-                  <td>
-                    <span class="copy-cell" title="Click to copy" (click)="copyToClipboard(e.email, 'Email')">
-                      {{ e.email }}
-                    </span>
-                  </td>
+                  <td><span class="copy-cell" title="Click to copy" (click)="copy(e.email, 'Email')">{{ e.email }}</span></td>
                   <td>{{ e.age }}</td>
+                  <td><span class="copy-cell" title="Click to copy" (click)="copy(e.mobile, 'Mobile')">{{ e.mobile }}</span></td>
                   <td>
-                    <span class="copy-cell" title="Click to copy" (click)="copyToClipboard(e.mobile, 'Mobile')">
-                      {{ e.mobile }}
-                    </span>
-                  </td>
-                  <td>
-                    @if (e.department) {
-                      <span class="dept-tag">{{ e.department }}</span>
-                    } @else {
-                      <span class="text-muted">—</span>
-                    }
+                    @if (e.department) { <span class="dept-tag">{{ e.department }}</span> }
+                    @else { <span class="text-muted">—</span> }
                   </td>
                   <td>{{ e.salary != null ? (e.salary | number:'1.0-0') : '—' }}</td>
                   <td>
                     <button class="btn btn-sm btn-outline-secondary me-1" (click)="openView(e)">View</button>
-                    <button class="btn btn-sm btn-outline-primary me-1" (click)="openEdit(e)">Edit</button>
+                    <button class="btn btn-sm btn-outline-primary me-1" (click)="openForm(e)">Edit</button>
                     @if (auth.isAdmin()) {
                       <button class="btn btn-sm btn-outline-danger" (click)="deleteRow(e)">Delete</button>
                     }
@@ -151,76 +121,68 @@
             Page {{ (pageData()?.number ?? 0) + 1 }} of {{ pageData()?.totalPages }}
             ({{ pageData()?.totalElements }} total)
           </small>
-          <nav>
-            <ul class="pagination pagination-sm mb-0">
-              <li class="page-item" [class.disabled]="pageData()?.first">
-                <button class="page-link" (click)="prev()">Prev</button>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="pageData()?.first">
+              <button class="page-link" (click)="prev()">Prev</button>
+            </li>
+            @for (pn of pageNumbers(); track pn) {
+              <li class="page-item" [class.active]="pn === pageData()?.number">
+                <button class="page-link" (click)="setPage(pn)">{{ pn + 1 }}</button>
               </li>
-              @for (pn of pageNumbers(); track pn) {
-                <li class="page-item" [class.active]="pn === pageData()?.number">
-                  <button class="page-link" (click)="setPage(pn)">{{ pn + 1 }}</button>
-                </li>
-              }
-              <li class="page-item" [class.disabled]="pageData()?.last">
-                <button class="page-link" (click)="next()">Next</button>
-              </li>
-            </ul>
-          </nav>
+            }
+            <li class="page-item" [class.disabled]="pageData()?.last">
+              <button class="page-link" (click)="next()">Next</button>
+            </li>
+          </ul>
         </div>
       }
     </div>
   }
 
-  <!-- Import Excel Modal -->
-  @if (importOpen()) {
-    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
-         (mousedown)="closeImport()">
+  <!-- ── Import Modal ────────────────────────────────────────────────────── -->
+  @if (imp().open) {
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog" (mousedown)="closeImport()">
       <div class="modal-dialog modal-dialog-centered" (mousedown)="$event.stopPropagation()">
         <div class="modal-content">
-          <div class="modal-header" style="background:#1a1a2e;">
+          <div class="modal-header modal-header-dark">
             <h5 class="modal-title text-white">Import Employees from Excel</h5>
             <button type="button" class="btn-close btn-close-white" (click)="closeImport()"></button>
           </div>
           <div class="modal-body">
-            <div class="mb-3" style="font-size:13px;background:#f8f9fa;border-radius:4px;padding:12px;">
+            <div class="import-hint">
               <strong>How to import:</strong>
-              <ol style="margin:6px 0 0 0;padding-left:18px;">
-                <li>Download the template below</li>
-                <li>Fill in employee data — one row per employee</li>
-                <li>Required columns: Username, Email, First name, Last name, Age, Mobile</li>
-                <li>Upload the filled file</li>
+              <ol>
+                <li>Download the template, fill in one row per employee</li>
+                <li>Required: Username, Email, First name, Last name, Age, Mobile</li>
+                <li>Upload the filled file below</li>
               </ol>
-              <button class="btn btn-outline-secondary btn-sm mt-2" (click)="downloadTemplate()">
-                Download Template (.xlsx)
-              </button>
+              <button class="btn btn-outline-secondary btn-sm mt-1" (click)="downloadTemplate()">Download Template (.xlsx)</button>
             </div>
 
             <div class="mb-3">
               <label class="form-label">Select Excel File (.xlsx)</label>
-              <input type="file" class="form-control form-control-sm" accept=".xlsx"
-                     (change)="onImportFileChange($event)" />
-              @if (importFile()) {
-                <small class="text-muted mt-1 d-block">Selected: {{ importFile()!.name }}</small>
+              <input type="file" class="form-control form-control-sm" accept=".xlsx" (change)="onImportFile($event)" />
+              @if (imp().file) {
+                <small class="text-muted mt-1 d-block">Selected: {{ imp().file!.name }}</small>
               }
             </div>
 
-            <!-- Results -->
-            @if (importResult()) {
+            @if (imp().result) {
               <div class="import-result">
                 <div class="d-flex gap-3 mb-2">
                   <div class="import-stat import-stat-ok">
-                    <span class="import-stat-num">{{ importResult()!.imported }}</span>
+                    <span class="import-stat-num">{{ imp().result!.imported }}</span>
                     <span class="import-stat-lbl">Imported</span>
                   </div>
                   <div class="import-stat import-stat-skip">
-                    <span class="import-stat-num">{{ importResult()!.skipped }}</span>
+                    <span class="import-stat-num">{{ imp().result!.skipped }}</span>
                     <span class="import-stat-lbl">Skipped</span>
                   </div>
                 </div>
-                @if (importResult()!.errors.length > 0) {
-                  <div style="max-height:150px;overflow-y:auto;background:#fff5f5;border:1px solid #fcc;border-radius:4px;padding:8px;">
-                    @for (err of importResult()!.errors; track $index) {
-                      <div style="font-size:12px;color:#b02a37;padding:2px 0;">{{ err }}</div>
+                @if (imp().result!.errors.length > 0) {
+                  <div class="import-errors">
+                    @for (err of imp().result!.errors; track $index) {
+                      <div class="import-error-row">{{ err }}</div>
                     }
                   </div>
                 }
@@ -229,12 +191,10 @@
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary btn-sm" (click)="closeImport()">
-              {{ importResult()?.imported ? 'Close & Refresh' : 'Cancel' }}
+              {{ imp().result?.imported ? 'Close & Refresh' : 'Cancel' }}
             </button>
-            <button class="btn btn-dark btn-sm"
-                    (click)="submitImport()"
-                    [disabled]="!importFile() || importLoading()">
-              {{ importLoading() ? 'Importing...' : 'Import' }}
+            <button class="btn btn-dark btn-sm" (click)="submitImport()" [disabled]="!imp().file || imp().loading">
+              {{ imp().loading ? 'Importing...' : 'Import' }}
             </button>
           </div>
         </div>
@@ -243,34 +203,40 @@
     <div class="modal-backdrop fade show"></div>
   }
 
-  <!-- View Employee Modal -->
-  @if (viewEmployee()) {
-    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
-         (mousedown)="closeView()">
+  <!-- ── View Modal ─────────────────────────────────────────────────────── -->
+  @if (view()) {
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog" (mousedown)="closeView()">
       <div class="modal-dialog modal-dialog-centered" (mousedown)="$event.stopPropagation()">
         <div class="modal-content">
-          <div class="modal-header" style="background:#1a1a2e;">
+          <div class="modal-header modal-header-dark">
             <h5 class="modal-title text-white">Employee Details</h5>
             <button type="button" class="btn-close btn-close-white" (click)="closeView()"></button>
           </div>
           <div class="modal-body">
             <table class="table table-sm table-bordered mb-0">
               <tbody>
-                <tr><td style="width:40%;background:#f8f8f8;font-size:12px;font-weight:bold;">ID</td><td>{{ viewEmployee()!.id }}</td></tr>
-                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Username</td><td>{{ viewEmployee()!.username }}</td></tr>
-                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Full Name</td><td>{{ viewEmployee()!.firstName }} {{ viewEmployee()!.lastName }}</td></tr>
-                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Email</td><td>{{ viewEmployee()!.email }}</td></tr>
-                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Age</td><td>{{ viewEmployee()!.age }}</td></tr>
-                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Mobile</td><td>{{ viewEmployee()!.mobile }}</td></tr>
-                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Department</td><td>{{ viewEmployee()!.department || '—' }}</td></tr>
-                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Salary</td><td>{{ viewEmployee()!.salary != null ? (viewEmployee()!.salary! | number:'1.0-0') : '—' }}</td></tr>
-                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Added On</td><td>{{ viewEmployee()!.createdAt ? (viewEmployee()!.createdAt | date:'dd MMM yyyy, hh:mm a') : '—' }}</td></tr>
-                <tr><td style="background:#f8f8f8;font-size:12px;font-weight:bold;">Added By</td><td>{{ viewEmployee()!.createdBy || '—' }}</td></tr>
+                @for (row of [
+                  ['ID',         view()!.id],
+                  ['Username',   view()!.username],
+                  ['Full Name',  view()!.firstName + ' ' + view()!.lastName],
+                  ['Email',      view()!.email],
+                  ['Age',        view()!.age],
+                  ['Mobile',     view()!.mobile],
+                  ['Department', view()!.department || '—'],
+                  ['Salary',     view()!.salary != null ? view()!.salary : '—'],
+                  ['Added On',   view()!.createdAt || '—'],
+                  ['Added By',   view()!.createdBy || '—']
+                ]; track $index) {
+                  <tr>
+                    <td class="detail-label">{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                  </tr>
+                }
               </tbody>
             </table>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-outline-primary btn-sm" (click)="openEdit(viewEmployee()!); closeView()">Edit</button>
+            <button class="btn btn-outline-primary btn-sm" (click)="openForm(view()!); closeView()">Edit</button>
             <button class="btn btn-secondary btn-sm" (click)="closeView()">Close</button>
           </div>
         </div>
@@ -279,22 +245,20 @@
     <div class="modal-backdrop fade show"></div>
   }
 
-  <!-- Add/Edit Employee Modal -->
-  @if (modalOpen()) {
+  <!-- ── Add / Edit Modal ───────────────────────────────────────────────── -->
+  @if (modal().open) {
     <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
-         (mousedown)="backdropClick($event)">
+         (mousedown)="$event.target === $event.currentTarget && closeForm()">
       <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
            (mousedown)="$event.stopPropagation()">
         <div class="modal-content">
-          <div class="modal-header" style="background:#1a1a2e;">
-            <h5 class="modal-title text-white">
-              {{ editingId() === null ? 'Add New Employee' : 'Edit Employee' }}
-            </h5>
-            <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+          <div class="modal-header modal-header-dark">
+            <h5 class="modal-title text-white">{{ modal().editingId === null ? 'Add New Employee' : 'Edit Employee' }}</h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeForm()"></button>
           </div>
           <div class="modal-body">
-            @if (saveError()) {
-              <div class="alert alert-danger py-2" style="font-size:13px;">{{ saveError() }}</div>
+            @if (modal().error) {
+              <div class="alert alert-danger py-2 fs-sm">{{ modal().error }}</div>
             }
             <form [formGroup]="empForm">
               <div class="row g-3">
@@ -328,7 +292,7 @@
                   }
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Mobile Number</label>
+                  <label class="form-label">Mobile</label>
                   <input class="form-control form-control-sm" formControlName="mobile" maxlength="10" inputmode="numeric" />
                   @if (empForm.controls.mobile.invalid && empForm.controls.mobile.touched) {
                     <small class="text-danger">Exactly 10 digits</small>
@@ -343,16 +307,14 @@
                   <input class="form-control form-control-sm" formControlName="department"
                          placeholder="e.g. Engineering" list="dept-list" />
                   <datalist id="dept-list">
-                    @for (dept of departments(); track dept) {
-                      <option [value]="dept">{{ dept }}</option>
-                    }
+                    @for (d of departments(); track d) { <option [value]="d">{{ d }}</option> }
                   </datalist>
                 </div>
               </div>
             </form>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-secondary btn-sm" (click)="closeModal()">Cancel</button>
+            <button class="btn btn-secondary btn-sm" (click)="closeForm()">Cancel</button>
             <button class="btn btn-dark btn-sm" (click)="save()">Save Employee</button>
           </div>
         </div>

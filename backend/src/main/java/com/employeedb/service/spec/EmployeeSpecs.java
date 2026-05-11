@@ -37,8 +37,4 @@ public final class EmployeeSpecs {
     };
   }
 
-  /** Backward-compatible overload without salary range. */
-  public static Specification<Employee> filter(String query, String department) {
-    return filter(query, department, null, null);
-  }
 }

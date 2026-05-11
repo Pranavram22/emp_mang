@@ -7,6 +7,9 @@ import { StatsService } from '../../core/stats.service';
 import { ToastService } from '../../core/toast.service';
 import { Employee, PageEmployee, VALIDATION } from '../../core/models';
 
+interface ModalState { open: boolean; editingId: number | null; error: string | null; }
+interface ImportState { open: boolean; loading: boolean; file: File | null; result: { imported: number; skipped: number; errors: string[] } | null; }
+
 @Component({
   selector: 'app-employees',
   standalone: true,
@@ -15,93 +18,154 @@ import { Employee, PageEmployee, VALIDATION } from '../../core/models';
   styleUrl: './employees.component.scss'
 })
 export class EmployeesComponent implements OnInit {
-  private readonly fb = inject(FormBuilder);
-  private readonly api = inject(EmployeeService);
-  private readonly statsService = inject(StatsService);
-  private readonly toast = inject(ToastService);
+  private readonly fb      = inject(FormBuilder);
+  private readonly api     = inject(EmployeeService);
+  private readonly stats   = inject(StatsService);
+  private readonly toast   = inject(ToastService);
+  readonly auth            = inject(AuthService);
 
-  readonly auth = inject(AuthService);
-
-  readonly pageData = signal<PageEmployee | null>(null);
-  readonly loading = signal(false);
-  readonly saveError = signal<string | null>(null);
-  readonly modalOpen = signal(false);
-  readonly editingId = signal<number | null>(null);
-  readonly viewEmployee = signal<Employee | null>(null);
+  // Page state
+  readonly pageData    = signal<PageEmployee | null>(null);
+  readonly loading     = signal(false);
   readonly departments = signal<string[]>([]);
-  readonly copiedField = signal<string | null>(null);
-  readonly importOpen = signal(false);
-  readonly importLoading = signal(false);
-  readonly importResult = signal<{ imported: number; skipped: number; errors: string[] } | null>(null);
-  readonly importFile = signal<File | null>(null);
+  readonly pageSize    = signal(10);
+  readonly pageIndex   = signal(0);
+  readonly pageSizeOptions = [5, 10, 25, 50];
+
+  // Modal state
+  readonly modal  = signal<ModalState>({ open: false, editingId: null, error: null });
+  readonly view   = signal<Employee | null>(null);
+  readonly imp    = signal<ImportState>({ open: false, loading: false, file: null, result: null });
 
   readonly filterForm = this.fb.nonNullable.group({
-    q: [''],
+    q:          [''],
     department: [''],
-    minSalary: [null as number | null],
-    maxSalary: [null as number | null]
+    minSalary:  [null as number | null],
+    maxSalary:  [null as number | null]
   });
 
   readonly sortControl = this.fb.nonNullable.control('id,asc');
 
-  readonly pageSize = signal(10);
-  readonly currentPageIndex = signal(0);
-  readonly pageSizeOptions = [5, 10, 25, 50];
-
   readonly empForm = this.fb.nonNullable.group({
-    username: ['', [Validators.required, Validators.pattern(VALIDATION.usernamePattern)]],
-    email: ['', [Validators.required, Validators.email, Validators.maxLength(120)]],
-    age: [null as number | null, [Validators.required, Validators.min(18), Validators.max(100)]],
-    mobile: ['', [Validators.required, Validators.pattern(VALIDATION.mobilePattern)]],
-    firstName: ['', [Validators.required, Validators.maxLength(80)]],
-    lastName: ['', [Validators.required, Validators.maxLength(80)]],
+    username:   ['', [Validators.required, Validators.pattern(VALIDATION.usernamePattern)]],
+    email:      ['', [Validators.required, Validators.email, Validators.maxLength(120)]],
+    age:        [null as number | null, [Validators.required, Validators.min(18), Validators.max(100)]],
+    mobile:     ['', [Validators.required, Validators.pattern(VALIDATION.mobilePattern)]],
+    firstName:  ['', [Validators.required, Validators.maxLength(80)]],
+    lastName:   ['', [Validators.required, Validators.maxLength(80)]],
     department: ['', [Validators.maxLength(80)]],
-    salary: [null as number | null]
+    salary:     [null as number | null]
   });
 
   ngOnInit(): void {
     this.reload();
-    this.statsService.departments().subscribe((d) => this.departments.set(d));
+    this.stats.departments().subscribe(d => this.departments.set(d));
   }
 
-  openView(e: Employee): void {
-    this.viewEmployee.set(e);
+  // ── Reload ──────────────────────────────────────────────────────────────────
+
+  reload(): void {
+    this.loading.set(true);
+    const f = this.filterForm.getRawValue();
+    this.api.list({
+      page: this.pageIndex(), size: this.pageSize(),
+      sort: this.sortControl.value,
+      q: f.q || undefined, department: f.department || undefined,
+      minSalary: f.minSalary ?? null, maxSalary: f.maxSalary ?? null
+    }).subscribe({
+      next: p => { this.pageData.set(p); this.loading.set(false); },
+      error: ()  => this.loading.set(false)
+    });
   }
 
-  closeView(): void {
-    this.viewEmployee.set(null);
+  applyFilters(): void { this.pageIndex.set(0); this.reload(); }
+  onSortChange(): void { this.pageIndex.set(0); this.reload(); }
+  onPageSizeChange(n: number): void { this.pageSize.set(n); this.pageIndex.set(0); this.reload(); }
+  setPage(i: number): void { this.pageIndex.set(i); this.reload(); }
+  prev(): void { if (this.pageData()?.first) return; this.pageIndex.update(i => i - 1); this.reload(); }
+  next(): void { if (this.pageData()?.last)  return; this.pageIndex.update(i => i + 1); this.reload(); }
+
+  pageNumbers(): number[] {
+    const p = this.pageData();
+    if (!p) return [];
+    const start = Math.max(0, Math.min(p.number - 2, p.totalPages - 5));
+    return Array.from({ length: Math.min(5, p.totalPages) }, (_, i) => start + i);
   }
 
-  openImport(): void {
-    this.importResult.set(null);
-    this.importFile.set(null);
-    this.importOpen.set(true);
+  // ── View modal ──────────────────────────────────────────────────────────────
+
+  openView(e: Employee): void  { this.view.set(e); }
+  closeView(): void            { this.view.set(null); }
+
+  // ── Add / Edit modal ────────────────────────────────────────────────────────
+
+  openForm(e?: Employee): void {
+    this.modal.set({ open: true, editingId: e?.id ?? null, error: null });
+    if (e) {
+      this.empForm.patchValue({
+        ...e,
+        department: e.department ?? '',
+        salary: e.salary != null && !Number.isNaN(Number(e.salary)) ? Number(e.salary) : null
+      });
+    } else {
+      this.empForm.reset({ username: '', email: '', age: null, mobile: '', firstName: '', lastName: '', department: '', salary: null });
+    }
   }
 
+  closeForm(): void { this.modal.update(m => ({ ...m, open: false })); }
+
+  save(): void {
+    this.modal.update(m => ({ ...m, error: null }));
+    if (this.empForm.invalid) { this.empForm.markAllAsTouched(); return; }
+    const raw = this.empForm.getRawValue();
+    const body: Employee = {
+      ...raw,
+      age: Number(raw.age),
+      department: raw.department?.trim() || undefined,
+      salary: raw.salary != null && !Number.isNaN(Number(raw.salary)) ? Number(raw.salary) : undefined
+    };
+    const id   = this.modal().editingId;
+    const verb = id == null ? 'added' : 'updated';
+    (id == null ? this.api.create(body) : this.api.update(id, body)).subscribe({
+      next: () => { this.closeForm(); this.reload(); this.toast.success(`Employee ${verb} successfully`); },
+      error: err => this.modal.update(m => ({ ...m, error: this.formatErr(err?.error) }))
+    });
+  }
+
+  deleteRow(e: Employee): void {
+    if (!e.id || !window.confirm(`Delete "${e.firstName} ${e.lastName}"?`)) return;
+    this.api.delete(e.id).subscribe({
+      next: () => { this.reload(); this.toast.success(`"${e.firstName} ${e.lastName}" deleted`); },
+      error: err => this.toast.error(this.formatErr(err?.error))
+    });
+  }
+
+  // ── Import modal ────────────────────────────────────────────────────────────
+
+  openImport(): void  { this.imp.set({ open: true, loading: false, file: null, result: null }); }
   closeImport(): void {
-    this.importOpen.set(false);
-    if (this.importResult()?.imported) this.reload();
+    const imported = this.imp().result?.imported;
+    this.imp.update(s => ({ ...s, open: false }));
+    if (imported) this.reload();
   }
 
-  onImportFileChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.importFile.set(input.files?.[0] ?? null);
-    this.importResult.set(null);
+  onImportFile(ev: Event): void {
+    const file = (ev.target as HTMLInputElement).files?.[0] ?? null;
+    this.imp.update(s => ({ ...s, file, result: null }));
   }
 
   submitImport(): void {
-    const file = this.importFile();
+    const file = this.imp().file;
     if (!file) return;
-    this.importLoading.set(true);
+    this.imp.update(s => ({ ...s, loading: true }));
     this.api.importExcel(file).subscribe({
-      next: (res) => {
-        this.importLoading.set(false);
-        this.importResult.set(res);
-        if (res.imported > 0) this.toast.success(`${res.imported} employee(s) imported successfully`);
-        if (res.skipped > 0) this.toast.error(`${res.skipped} row(s) skipped — see details below`);
+      next: res => {
+        this.imp.update(s => ({ ...s, loading: false, result: res }));
+        if (res.imported > 0) this.toast.success(`${res.imported} employee(s) imported`);
+        if (res.skipped  > 0) this.toast.error(`${res.skipped} row(s) skipped`);
       },
-      error: (err) => {
-        this.importLoading.set(false);
+      error: err => {
+        this.imp.update(s => ({ ...s, loading: false }));
         this.toast.error(err?.error?.message ?? 'Import failed');
       }
     });
@@ -109,208 +173,50 @@ export class EmployeesComponent implements OnInit {
 
   downloadTemplate(): void {
     this.api.downloadImportTemplate().subscribe({
-      next: (blob) => this.downloadBlob(blob, 'employee_import_template.xlsx'),
+      next: blob => this.saveBlob(blob, 'employee_import_template.xlsx'),
       error: () => this.toast.error('Failed to download template')
     });
   }
 
-  copyToClipboard(value: string, label: string): void {
-    navigator.clipboard.writeText(value).then(() => {
-      this.toast.success(`${label} copied to clipboard`);
-    });
-  }
-
-  onSortChange(): void {
-    this.currentPageIndex.set(0);
-    this.reload();
-  }
-
-  onPageSizeChange(size: number): void {
-    this.pageSize.set(size);
-    this.currentPageIndex.set(0);
-    this.reload();
-  }
-
-  reload(): void {
-    this.loading.set(true);
-    const f = this.filterForm.getRawValue();
-    this.api
-      .list({
-        page: this.currentPageIndex(),
-        size: this.pageSize(),
-        q: f.q || undefined,
-        department: f.department || undefined,
-        sort: this.sortControl.value,
-        minSalary: f.minSalary ?? null,
-        maxSalary: f.maxSalary ?? null
-      })
-      .subscribe({
-        next: (p) => {
-          this.pageData.set(p);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false)
-      });
-  }
-
-  applyFilters(): void {
-    this.currentPageIndex.set(0);
-    this.reload();
-  }
-
-  setPage(i: number): void {
-    this.currentPageIndex.set(i);
-    this.reload();
-  }
-
-  prev(): void {
-    const p = this.pageData();
-    if (!p || p.first) return;
-    this.currentPageIndex.update((x) => Math.max(0, x - 1));
-    this.reload();
-  }
-
-  next(): void {
-    const p = this.pageData();
-    if (!p || p.last) return;
-    this.currentPageIndex.update((x) => x + 1);
-    this.reload();
-  }
-
-  openCreate(): void {
-    this.saveError.set(null);
-    this.editingId.set(null);
-    this.empForm.reset({
-      username: '',
-      email: '',
-      age: null,
-      mobile: '',
-      firstName: '',
-      lastName: '',
-      department: '',
-      salary: null
-    });
-    this.modalOpen.set(true);
-  }
-
-  openEdit(e: Employee): void {
-    this.saveError.set(null);
-    this.editingId.set(e.id ?? null);
-    this.empForm.patchValue({
-      username: e.username,
-      email: e.email,
-      age: e.age,
-      mobile: e.mobile,
-      firstName: e.firstName,
-      lastName: e.lastName,
-      department: e.department ?? '',
-      salary:
-        e.salary !== undefined && e.salary !== null && !Number.isNaN(Number(e.salary))
-          ? Number(e.salary)
-          : null
-    });
-    this.modalOpen.set(true);
-  }
-
-  closeModal(): void {
-    this.modalOpen.set(false);
-  }
-
-  backdropClick(ev: MouseEvent): void {
-    if (ev.target === ev.currentTarget) this.closeModal();
-  }
-
-  save(): void {
-    this.saveError.set(null);
-    if (this.empForm.invalid) {
-      this.empForm.markAllAsTouched();
-      return;
-    }
-    const raw = this.empForm.getRawValue();
-    const body: Employee = {
-      username: raw.username,
-      email: raw.email,
-      age: Number(raw.age),
-      mobile: raw.mobile,
-      firstName: raw.firstName,
-      lastName: raw.lastName,
-      department: raw.department?.trim() ? raw.department.trim() : undefined,
-      salary:
-        raw.salary !== null && raw.salary !== undefined && !Number.isNaN(Number(raw.salary))
-          ? Number(raw.salary)
-          : undefined
-    };
-    const id = this.editingId();
-    const req = id == null ? this.api.create(body) : this.api.update(id, body);
-    const verb = id == null ? 'added' : 'updated';
-    req.subscribe({
-      next: () => {
-        this.closeModal();
-        this.reload();
-        this.toast.success(`Employee ${verb} successfully`);
-      },
-      error: (err) => this.saveError.set(this.formatErr(err?.error))
-    });
-  }
-
-  deleteRow(e: Employee): void {
-    if (!e.id) return;
-    if (!window.confirm(`Delete employee "${e.firstName} ${e.lastName}"?`)) return;
-    this.api.delete(e.id).subscribe({
-      next: () => {
-        this.reload();
-        this.toast.success(`Employee "${e.firstName} ${e.lastName}" deleted`);
-      },
-      error: (err) => this.toast.error(this.formatErr(err?.error))
-    });
-  }
+  // ── Exports ─────────────────────────────────────────────────────────────────
 
   exportPdf(): void {
     const f = this.filterForm.getRawValue();
     this.api.exportPdf(f.q || undefined, f.department || undefined, f.minSalary, f.maxSalary).subscribe({
-      next: (blob) => { this.downloadBlob(blob, 'employees.pdf'); this.toast.info('PDF downloaded'); },
-      error: () => this.toast.error('PDF export failed (admin only)')
+      next: blob => { this.saveBlob(blob, 'employees.pdf');  this.toast.info('PDF downloaded'); },
+      error: () => this.toast.error('PDF export failed')
     });
   }
 
   exportExcel(): void {
     const f = this.filterForm.getRawValue();
     this.api.exportExcel(f.q || undefined, f.department || undefined, f.minSalary, f.maxSalary).subscribe({
-      next: (blob) => { this.downloadBlob(blob, 'employees.xlsx'); this.toast.info('Excel downloaded'); },
-      error: () => this.toast.error('Excel export failed (admin only)')
+      next: blob => { this.saveBlob(blob, 'employees.xlsx'); this.toast.info('Excel downloaded'); },
+      error: () => this.toast.error('Excel export failed')
     });
   }
 
-  /** Page numbers centered around current (0-based). */
-  pageNumbers(): number[] {
-    const p = this.pageData();
-    if (!p) return [];
-    const total = p.totalPages;
-    const cur = p.number;
-    const win = 5;
-    const start = Math.max(0, Math.min(cur - 2, total - win));
-    const end = Math.min(total, start + win);
-    return Array.from({ length: end - start }, (_, i) => start + i);
+  // ── Clipboard ───────────────────────────────────────────────────────────────
+
+  copy(value: string, label: string): void {
+    navigator.clipboard.writeText(value).then(() => this.toast.success(`${label} copied`));
   }
 
-  private downloadBlob(blob: Blob, filename: string): void {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+
+  private saveBlob(blob: Blob, filename: string): void {
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: filename });
     a.click();
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(a.href);
   }
 
-  private formatErr(payload: unknown): string {
-    if (!payload || typeof payload !== 'object') return 'Request failed';
-    const p = payload as Record<string, unknown>;
-    const msg = p['message'];
-    if (typeof msg === 'string') return msg;
-    const errs = p['errors'];
+  private formatErr(p: unknown): string {
+    if (!p || typeof p !== 'object') return 'Request failed';
+    const o = p as Record<string, unknown>;
+    if (typeof o['message'] === 'string') return o['message'];
+    const errs = o['errors'];
     if (errs && typeof errs === 'object') {
-      const e = errs as Record<string, string>;
-      const v = Object.values(e)[0];
+      const v = Object.values(errs as Record<string, string>)[0];
       return typeof v === 'string' ? v : 'Validation failed';
     }
     return 'Request failed';
