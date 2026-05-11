@@ -68,15 +68,15 @@
               @if (changePwForm.controls.newPassword.invalid && changePwForm.controls.newPassword.touched) {
                 <small class="text-danger">Minimum 6 characters</small>
               }
-            </div>
+    </div>
             <div class="mb-0">
               <label class="form-label">Confirm New Password</label>
               <input type="password" class="form-control form-control-sm"
                      formControlName="confirmPassword" autocomplete="new-password" />
               @if (changePwForm.controls.confirmPassword.invalid && changePwForm.controls.confirmPassword.touched) {
                 <small class="text-danger">Required</small>
-              }
-            </div>
+        }
+      </div>
           </form>
         </div>
         <div class="modal-footer">

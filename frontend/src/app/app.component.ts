@@ -4,13 +4,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './core/auth.service';
 import { ToastService } from './core/toast.service';
-import { ToastComponent } from './shared/toast/toast.component';
+import { ToastComponent } from './core/toast.service';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, ToastComponent, ReactiveFormsModule, CommonModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styles: []
 })
 export class AppComponent {
   readonly auth = inject(AuthService);

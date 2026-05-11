@@ -15,7 +15,7 @@ interface ImportState { open: boolean; loading: boolean; file: File | null; resu
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './employees.component.html',
-  styleUrl: './employees.component.scss'
+  styles: []
 })
 export class EmployeesComponent implements OnInit {
   private readonly fb      = inject(FormBuilder);
