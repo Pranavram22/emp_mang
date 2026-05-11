@@ -67,8 +67,6 @@ public class EmployeeService {
     repo.deleteById(id);
   }
 
-  // ── Filter spec (inlined from EmployeeSpecs) ───────────────────────────────
-
   private static Specification<Employee> filter(String query, String department, BigDecimal minSalary, BigDecimal maxSalary) {
     return (root, cq, cb) -> {
       List<Predicate> p = new ArrayList<>();

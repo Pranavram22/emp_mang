@@ -1,8 +1,7 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Routes } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor, authGuard } from './core/auth.service';
-import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   { path: 'login',       loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent) },

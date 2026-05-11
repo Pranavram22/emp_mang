@@ -6,7 +6,6 @@ import { ToastService } from '../../core/toast.service';
 
 @Component({
   selector: 'app-admin-users',
-  standalone: true,
   imports: [CommonModule],
   template: `
 <div class="page-wrap">

@@ -8,7 +8,6 @@ import { ToastService, ToastComponent } from './core/toast.service';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, ToastComponent, ReactiveFormsModule, CommonModule],
-  styles: [],
   template: `
 <div class="main-navbar">
   <a class="brand-name" routerLink="/dashboard">

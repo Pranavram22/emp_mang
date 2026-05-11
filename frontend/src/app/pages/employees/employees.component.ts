@@ -1,11 +1,10 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../core/auth.service';
+import { AuthService, Employee, PageEmployee, VALIDATION } from '../../core/auth.service';
 import { EmployeeService } from '../../core/employee.service';
 import { StatsService } from '../../core/stats.service';
 import { ToastService } from '../../core/toast.service';
-import { Employee, PageEmployee, VALIDATION } from '../../core/auth.service';
 
 interface ModalState { open: boolean; editingId: number | null; error: string | null; }
 interface ImportState { open: boolean; loading: boolean; file: File | null; result: { imported: number; skipped: number; errors: string[] } | null; }
@@ -14,8 +13,7 @@ interface ImportState { open: boolean; loading: boolean; file: File | null; resu
   selector: 'app-employees',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './employees.component.html',
-  styles: []
+  templateUrl: './employees.component.html'
 })
 export class EmployeesComponent implements OnInit {
   private readonly fb      = inject(FormBuilder);

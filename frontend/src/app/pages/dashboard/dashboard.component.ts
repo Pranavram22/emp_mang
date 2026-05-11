@@ -6,7 +6,6 @@ import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
 <div class="page-wrap">

@@ -26,10 +26,6 @@ public class EmployeeExcelImportService {
     this.repo = repo;
   }
 
-  /**
-   * Expected columns (matching export template):
-   * 0:Username  1:Email  2:First name  3:Last name  4:Age  5:Mobile  6:Department  7:Salary
-   */
   @Transactional
   public ImportResult importFile(InputStream in) throws Exception {
     int imported = 0;
@@ -56,7 +52,6 @@ public class EmployeeExcelImportService {
           String dept      = str(row, 6);
           String salaryStr = str(row, 7);
 
-          // Required field checks
           if (username.isBlank() || email.isBlank() || firstName.isBlank()
               || lastName.isBlank() || ageStr.isBlank() || mobile.isBlank()) {
             errors.add("Row " + (i + 1) + ": Username, Email, First name, Last name, Age and Mobile are required");
@@ -64,21 +59,18 @@ public class EmployeeExcelImportService {
             continue;
           }
 
-          // Username validation
           if (!username.matches("[A-Za-z0-9_]{3,50}")) {
             errors.add("Row " + (i + 1) + ": Username '" + username + "' must be 3–50 chars (letters, digits, underscore)");
             skipped++;
             continue;
           }
 
-          // Email validation
           if (!email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
             errors.add("Row " + (i + 1) + ": Email '" + email + "' is not valid");
             skipped++;
             continue;
           }
 
-          // Age validation
           int age;
           try {
             age = Integer.parseInt(ageStr.replace(".0", "").trim());
@@ -93,28 +85,23 @@ public class EmployeeExcelImportService {
             continue;
           }
 
-          // Mobile validation
           if (!mobile.matches("\\d{10}")) {
             errors.add("Row " + (i + 1) + ": Mobile '" + mobile + "' must be exactly 10 digits");
             skipped++;
             continue;
           }
 
-          // Uniqueness check
           if (repo.existsByUsername(username)) {
             errors.add("Row " + (i + 1) + ": Username '" + username + "' already exists — skipped");
             skipped++;
             continue;
           }
 
-          // Parse optional salary
           BigDecimal salary = null;
           if (!salaryStr.isBlank()) {
             try {
-              salary = new BigDecimal(salaryStr.replace(",", "").trim());
-            } catch (NumberFormatException ignored) {
-              // Non-fatal — just leave salary null
-            }
+                salary = new BigDecimal(salaryStr.replace(",", "").trim());
+            } catch (NumberFormatException ignored) {}
           }
 
           Employee e = new Employee();
