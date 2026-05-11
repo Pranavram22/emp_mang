@@ -1,7 +1,6 @@
 package com.employeedb.web;
 
-import com.employeedb.dto.DeptCount;
-import com.employeedb.dto.StatsResponse;
+import static com.employeedb.dto.Dtos.*;
 import com.employeedb.model.Employee;
 import com.employeedb.repo.EmployeeRepository;
 import io.swagger.v3.oas.annotations.Operation;

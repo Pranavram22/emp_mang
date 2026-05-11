@@ -1,6 +1,6 @@
 package com.employeedb.service;
 
-import com.employeedb.dto.ImportResult;
+import static com.employeedb.dto.Dtos.*;
 import com.employeedb.model.Employee;
 import com.employeedb.repo.EmployeeRepository;
 import java.io.InputStream;

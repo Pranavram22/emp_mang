@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Employee, PageEmployee } from './models';
+import { Employee, PageEmployee } from './auth.service';
 
 export interface EmployeeListParams {
   page: number;

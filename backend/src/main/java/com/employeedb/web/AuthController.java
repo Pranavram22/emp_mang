@@ -1,9 +1,6 @@
 package com.employeedb.web;
 
-import com.employeedb.dto.AuthResponse;
-import com.employeedb.dto.ChangePasswordRequest;
-import com.employeedb.dto.LoginRequest;
-import com.employeedb.dto.RegisterRequest;
+import static com.employeedb.dto.Dtos.*;
 import com.employeedb.model.AppUser;
 import com.employeedb.security.JwtService;
 import com.employeedb.service.AuthService;

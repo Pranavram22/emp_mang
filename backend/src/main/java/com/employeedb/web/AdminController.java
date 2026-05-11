@@ -1,6 +1,6 @@
 package com.employeedb.web;
 
-import com.employeedb.dto.UserSummary;
+import static com.employeedb.dto.Dtos.*;
 import com.employeedb.model.AppUser;
 import com.employeedb.model.Role;
 import com.employeedb.repo.AppUserRepository;

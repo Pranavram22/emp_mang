@@ -1,6 +1,6 @@
 package com.employeedb.web;
 
-import com.employeedb.dto.ImportResult;
+import static com.employeedb.dto.Dtos.*;
 import com.employeedb.model.Employee;
 import com.employeedb.service.EmployeeExcelImportService;
 import com.employeedb.service.EmployeeService;

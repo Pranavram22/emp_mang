@@ -5,7 +5,7 @@ import { AuthService } from '../../core/auth.service';
 import { EmployeeService } from '../../core/employee.service';
 import { StatsService } from '../../core/stats.service';
 import { ToastService } from '../../core/toast.service';
-import { Employee, PageEmployee, VALIDATION } from '../../core/models';
+import { Employee, PageEmployee, VALIDATION } from '../../core/auth.service';
 
 interface ModalState { open: boolean; editingId: number | null; error: string | null; }
 interface ImportState { open: boolean; loading: boolean; file: File | null; result: { imported: number; skipped: number; errors: string[] } | null; }

@@ -1,8 +1,6 @@
 package com.employeedb.service;
 
-import com.employeedb.dto.ChangePasswordRequest;
-import com.employeedb.dto.LoginRequest;
-import com.employeedb.dto.RegisterRequest;
+import static com.employeedb.dto.Dtos.*;
 import com.employeedb.model.AppUser;
 import com.employeedb.model.Role;
 import com.employeedb.repo.AppUserRepository;
