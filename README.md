@@ -78,7 +78,7 @@ A full-stack **Employee Management System** with role-based access control, buil
 
 #### 4. Database (local file)
 - No external database is required.
-- The backend uses an **H2** file stored under your user home directory at `~/.employee-db/employeedb`.
+- The backend uses an **H2** file stored under your user home directory at `~/.employee-db/employeedb` (`%USERPROFILE%\.employee-db\employeedb` on Windows).
 
 ---
 
@@ -251,7 +251,7 @@ Applied on **both** Angular (client) and Spring Boot (server):
 | Setting | Value |
 |---|---|
 | Engine | H2 (local file) |
-| File | `~/.employee-db/employeedb` |
+| File | `~/.employee-db/employeedb` (`%USERPROFILE%\.employee-db\employeedb` on Windows) |
 | Username | `sa` |
 | Password | *(empty)* |
 
@@ -259,7 +259,7 @@ Applied on **both** Angular (client) and Spring Boot (server):
 
 Connection string (in `application.properties`):
 ```
-jdbc:h2:file:${user.home}/.employee-db/employeedb;DB_CLOSE_ON_EXIT=FALSE
+jdbc:h2:file:${user.home}/.employee-db/employeedb
 ```
 
 ---
@@ -269,7 +269,7 @@ jdbc:h2:file:${user.home}/.employee-db/employeedb;DB_CLOSE_ON_EXIT=FALSE
 `backend/src/main/resources/application.properties`
 
 ```properties
-spring.datasource.url=jdbc:h2:file:${user.home}/.employee-db/employeedb;DB_CLOSE_ON_EXIT=FALSE
+spring.datasource.url=jdbc:h2:file:${user.home}/.employee-db/employeedb
 spring.datasource.username=sa
 spring.datasource.password=
 spring.jpa.hibernate.ddl-auto=update
