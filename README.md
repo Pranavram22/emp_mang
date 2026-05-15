@@ -273,9 +273,11 @@ spring.datasource.url=jdbc:h2:file:${user.home}/.employee-db/employeedb
 spring.datasource.username=sa
 spring.datasource.password=${EMPLOYEE_DB_PASSWORD:localdev}
 spring.jpa.hibernate.ddl-auto=update
-jwt.secret=changeme-use-a-long-secret-key-at-least-256-bits-for-hs256-xxxxx
+jwt.secret=${JWT_SECRET:changeme-use-a-long-secret-key-at-least-256-bits-for-hs256-xxxxx}
 jwt.expiration-ms=86400000
 ```
+
+> Set `JWT_SECRET` to a strong value for any non-local environment.
 
 ---
 
