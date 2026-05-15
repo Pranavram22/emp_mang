@@ -277,11 +277,15 @@ jwt.secret=${JWT_SECRET:changeme-use-a-long-secret-key-at-least-256-bits-for-hs2
 jwt.expiration-ms=86400000
 ```
 
+> `${user.home}` is resolved by Spring to your user home directory.
+> - Linux/macOS example: `jdbc:h2:file:/home/you/.employee-db/employeedb`
+> - Windows example: `jdbc:h2:file:C:/Users/you/.employee-db/employeedb`
+>
+> Environment variables:
+> - Windows (Command Prompt): `set EMPLOYEE_DB_PASSWORD=localdev` and `set JWT_SECRET=your-strong-secret`
+> - macOS/Linux: `export EMPLOYEE_DB_PASSWORD=localdev` and `export JWT_SECRET=your-strong-secret`
+>
 > Set `JWT_SECRET` to a strong value for any non-local environment.
-
-> `${user.home}` is resolved by Spring to your user home directory (for example, `jdbc:h2:file:/home/you/.employee-db/employeedb`).
-> Windows (Command Prompt): `set EMPLOYEE_DB_PASSWORD=localdev`
-> macOS/Linux: `export EMPLOYEE_DB_PASSWORD=localdev`
 
 ---
 
