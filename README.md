@@ -253,9 +253,9 @@ Applied on **both** Angular (client) and Spring Boot (server):
 | Engine | H2 (local file) |
 | File | `~/.employee-db/employeedb` (`%USERPROFILE%\.employee-db\employeedb` on Windows) |
 | Username | `sa` |
-| Password | Optional (defaults empty) |
+| Password | Required (`EMPLOYEE_DB_PASSWORD`) |
 
-> Set `EMPLOYEE_DB_PASSWORD` if you want a protected local database; the empty default is intended for local development only.
+> Set `EMPLOYEE_DB_PASSWORD` before starting the backend.
 
 Connection string (in `application.properties`):
 ```
@@ -271,9 +271,9 @@ jdbc:h2:file:${user.home}/.employee-db/employeedb
 ```properties
 spring.datasource.url=jdbc:h2:file:${user.home}/.employee-db/employeedb
 spring.datasource.username=sa
-spring.datasource.password=${EMPLOYEE_DB_PASSWORD:}
+spring.datasource.password=${EMPLOYEE_DB_PASSWORD}
 spring.jpa.hibernate.ddl-auto=update
-jwt.secret=${JWT_SECRET:changeme-use-a-long-secret-key-at-least-256-bits-for-hs256-xxxxx}
+jwt.secret=${JWT_SECRET}
 jwt.expiration-ms=86400000
 ```
 
@@ -281,11 +281,11 @@ jwt.expiration-ms=86400000
 > - Linux/macOS example: `jdbc:h2:file:/home/you/.employee-db/employeedb`
 > - Windows example: `jdbc:h2:file:C:\\Users\\you\\.employee-db\\employeedb`
 >
-> Environment variables:
+> Environment variables (required):
 > - Windows (Command Prompt): `set EMPLOYEE_DB_PASSWORD=localdev` and `set JWT_SECRET=your-strong-secret`
 > - macOS/Linux: `export EMPLOYEE_DB_PASSWORD=localdev` and `export JWT_SECRET=your-strong-secret`
 >
-> Set `JWT_SECRET` to a strong value for any non-local environment.
+> `JWT_SECRET` should be a strong value in all environments.
 
 ---
 
