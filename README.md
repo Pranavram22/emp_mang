@@ -255,7 +255,7 @@ Applied on **both** Angular (client) and Spring Boot (server):
 | Username | `sa` |
 | Password | Optional (`EMPLOYEE_DB_PASSWORD`) |
 
-> Set `EMPLOYEE_DB_PASSWORD` (for example, `localdev`) if you want a protected local database.
+> Set `EMPLOYEE_DB_PASSWORD` (for example, `localdev`) if you want a protected local database. Leaving it unset means the H2 database has no password.
 
 Connection string (in `application.properties`):
 ```
@@ -277,7 +277,7 @@ jwt.secret=${JWT_SECRET:dev-only-change-me-use-a-strong-secret-at-least-256-bits
 jwt.expiration-ms=86400000
 ```
 
-> `${user.home}` is resolved by Spring to your user home directory.
+> `${user.home}` is Spring Boot property syntax (not a raw JDBC URL) and is resolved to your user home directory.
 > - Linux/macOS example: `jdbc:h2:file:/home/you/.employee-db/employeedb`
 > - Windows example: `jdbc:h2:file:C:\\Users\\you\\.employee-db\\employeedb`
 >
