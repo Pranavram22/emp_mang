@@ -253,9 +253,9 @@ Applied on **both** Angular (client) and Spring Boot (server):
 | Engine | H2 (local file) |
 | File | `~/.employee-db/employeedb` (`%USERPROFILE%\.employee-db\employeedb` on Windows) |
 | Username | `sa` |
-| Password | *(empty)* |
+| Password | `localdev` (default) |
 
-> The default password is empty for local development; set `spring.datasource.password` if you need a protected setup.
+> Override the default by setting `EMPLOYEE_DB_PASSWORD` or editing `spring.datasource.password`.
 
 Connection string (in `application.properties`):
 ```
@@ -271,7 +271,7 @@ jdbc:h2:file:${user.home}/.employee-db/employeedb
 ```properties
 spring.datasource.url=jdbc:h2:file:${user.home}/.employee-db/employeedb
 spring.datasource.username=sa
-spring.datasource.password=
+spring.datasource.password=${EMPLOYEE_DB_PASSWORD:localdev}
 spring.jpa.hibernate.ddl-auto=update
 jwt.secret=changeme-use-a-long-secret-key-at-least-256-bits-for-hs256-xxxxx
 jwt.expiration-ms=86400000
