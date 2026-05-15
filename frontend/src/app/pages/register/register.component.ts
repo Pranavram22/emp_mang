@@ -51,7 +51,13 @@ export class RegisterComponent {
   submit(): void {
     this.errorMsg.set(null);
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.auth.register(this.form.getRawValue()).subscribe({
+    const raw = this.form.getRawValue();
+    const body = {
+      username: raw.username.trim(),
+      email: raw.email.trim().toLowerCase(),
+      password: raw.password
+    };
+    this.auth.register(body).subscribe({
       next: res => { this.auth.setSession(res); void this.router.navigate(['/employees']); },
       error: err => this.errorMsg.set(err?.error?.message ?? 'Unable to register')
     });
