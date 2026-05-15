@@ -279,6 +279,10 @@ jwt.expiration-ms=86400000
 
 > Set `JWT_SECRET` to a strong value for any non-local environment.
 
+> The backend will fail to start if `EMPLOYEE_DB_PASSWORD` is not set.
+> Windows (Command Prompt): `set EMPLOYEE_DB_PASSWORD=localdev`
+> macOS/Linux: `export EMPLOYEE_DB_PASSWORD=localdev`
+
 ---
 
 ## 🛑 Stopping the Servers
