@@ -13,10 +13,10 @@ import { AuthService, VALIDATION } from '../../core/auth.service';
   @if (errorMsg()) { <div class="alert alert-danger py-2 mb-3 fs-sm">{{ errorMsg() }}</div> }
   <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <div class="mb-3">
-      <label class="form-label">Username</label>
-      <input class="form-control" formControlName="username" autocomplete="username" placeholder="Enter username" />
+      <label class="form-label">Username or Email</label>
+      <input class="form-control" formControlName="username" autocomplete="username" placeholder="Enter username or email" />
       @if (form.controls.username.invalid && form.controls.username.touched) {
-        <small class="text-danger">3–50 characters, letters/digits/underscore</small>
+        <small class="text-danger">Enter a valid username or email address</small>
       }
     </div>
     <div class="mb-4">
@@ -38,16 +38,18 @@ export class LoginComponent {
   private readonly router = inject(Router);
   readonly errorMsg = signal<string | null>(null);
   readonly form = inject(FormBuilder).nonNullable.group({
-    username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(VALIDATION.usernamePattern)]],
+    username: ['', [Validators.required, Validators.maxLength(120), Validators.pattern(VALIDATION.loginPattern)]],
     password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(72)]]
   });
 
   submit(): void {
     this.errorMsg.set(null);
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.auth.login(this.form.getRawValue()).subscribe({
+    const raw = this.form.getRawValue();
+    const body = { username: raw.username.trim(), password: raw.password };
+    this.auth.login(body).subscribe({
       next: res => { this.auth.setSession(res); void this.router.navigate(['/employees']); },
-      error: () => this.errorMsg.set('Invalid username or password. Demo: admin / admin123 or user1 / user123.')
+      error: err => this.errorMsg.set(err?.error?.message ?? 'Unable to log in. Demo: admin / admin123 or user1 / user123.')
     });
   }
 }
