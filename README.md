@@ -4,7 +4,7 @@ A full-stack **Employee Management System** with role-based access control, buil
 
 | Layer | Technology |
 |---|---|
-| Backend | Spring Boot 3.2 · Spring Security · JWT · JPA · MySQL |
+| Backend | Spring Boot 3.2 · Spring Security · JWT · JPA · H2 (local file) |
 | Frontend | Angular 19 · Bootstrap 5 · Reactive Forms |
 | API Docs | Swagger / OpenAPI (springdoc) |
 | Export | iText 8 (PDF) · Apache POI (Excel) |
@@ -33,7 +33,7 @@ A full-stack **Employee Management System** with role-based access control, buil
 - **Spring Boot 3.2**
 - **Spring Security** + **JWT** (jjwt 0.12)
 - **Spring Data JPA** + **Hibernate**
-- **MySQL** database
+- **H2** local file database
 - **springdoc OpenAPI** (Swagger UI)
 - **iText 8** (PDF export)
 - **Apache POI 5** (Excel export)
@@ -76,32 +76,13 @@ A full-stack **Employee Management System** with role-based access control, buil
   npm -v
   ```
 
-#### 4. MySQL
-- Download from **https://dev.mysql.com/downloads/installer/** → Community Installer
-- Setup type: **Developer Default**
-- Set a root password during configuration
-- Leave port as **3306**
+#### 4. Database (local file)
+- No external database is required.
+- The backend uses an **H2** file stored under your user home directory at `~/.employee-db/employeedb` (`%USERPROFILE%\.employee-db\employeedb` on Windows).
 
 ---
 
-### Step 1 — Create the Database
-
-Open **MySQL Command Line Client** and run:
-
-```sql
-CREATE DATABASE IF NOT EXISTS employeedb
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-CREATE USER IF NOT EXISTS 'empuser'@'localhost'
-  IDENTIFIED BY 'emppass123';
-
-GRANT ALL PRIVILEGES ON employeedb.* TO 'empuser'@'localhost';
-FLUSH PRIVILEGES;
-```
-
----
-
-### Step 2 — Clone the Project
+### Step 1 — Clone the Project
 
 ```cmd
 git clone https://github.com/YOUR_USERNAME/employee-db.git
@@ -112,7 +93,7 @@ cd employee-db
 
 ---
 
-### Step 3 — Start the Backend
+### Step 2 — Start the Backend
 
 Open a Command Prompt in the `backend` folder:
 
@@ -133,7 +114,7 @@ Started EmployeeDbApplication in X seconds
 
 ---
 
-### Step 4 — Start the Frontend
+### Step 3 — Start the Frontend
 
 Open a **second** Command Prompt in the `frontend` folder:
 
@@ -269,15 +250,16 @@ Applied on **both** Angular (client) and Spring Boot (server):
 
 | Setting | Value |
 |---|---|
-| Engine | MySQL 8+ |
-| Host | `localhost:3306` |
-| Database | `employeedb` |
-| Username | `empuser` |
-| Password | `emppass123` |
+| Engine | H2 (local file) |
+| File | `~/.employee-db/employeedb` (`%USERPROFILE%\.employee-db\employeedb` on Windows) |
+| Username | `sa` |
+| Password | Optional (`EMPLOYEE_DB_PASSWORD`) |
+
+> Set `EMPLOYEE_DB_PASSWORD` (for example, `localdev`) if you want a protected local database. Leaving it unset means the H2 database has no password.
 
 Connection string (in `application.properties`):
 ```
-jdbc:mysql://localhost:3306/employeedb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+jdbc:h2:file:${user.home}/.employee-db/employeedb
 ```
 
 ---
@@ -287,13 +269,23 @@ jdbc:mysql://localhost:3306/employeedb?useSSL=false&allowPublicKeyRetrieval=true
 `backend/src/main/resources/application.properties`
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/employeedb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-spring.datasource.username=empuser
-spring.datasource.password=emppass123
+spring.datasource.url=jdbc:h2:file:${user.home}/.employee-db/employeedb
+spring.datasource.username=sa
+spring.datasource.password=${EMPLOYEE_DB_PASSWORD:}
 spring.jpa.hibernate.ddl-auto=update
-jwt.secret=changeme-use-a-long-secret-key-at-least-256-bits-for-hs256-xxxxx
+jwt.secret=${JWT_SECRET:dev-only-change-me-use-a-strong-secret-at-least-256-bits}
 jwt.expiration-ms=86400000
 ```
+
+> `${user.home}` is Spring Boot property syntax (not a raw JDBC URL) and is resolved to your user home directory.
+> - Linux/macOS example: `jdbc:h2:file:/home/you/.employee-db/employeedb`
+> - Windows example: `jdbc:h2:file:C:\\Users\\you\\.employee-db\\employeedb`
+>
+> Environment variables (optional for local dev, required for real environments):
+> - Windows (Command Prompt): `set EMPLOYEE_DB_PASSWORD=localdev` and `set JWT_SECRET=your-strong-secret`
+> - macOS/Linux: `export EMPLOYEE_DB_PASSWORD=localdev` and `export JWT_SECRET=your-strong-secret`
+>
+> `JWT_SECRET` should be a strong value in all non-local environments.
 
 ---
 
