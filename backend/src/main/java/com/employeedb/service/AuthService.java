@@ -79,10 +79,6 @@ public class AuthService {
   }
 
   private static String normalizeIdentifier(String identifier) {
-    if (identifier == null) {
-      return null;
-    }
-    String trimmed = identifier.trim();
-    return trimmed.contains("@") ? trimmed.toLowerCase() : trimmed;
+    return identifier != null ? identifier.trim() : null;
   }
 }

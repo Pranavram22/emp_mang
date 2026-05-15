@@ -1,7 +1,19 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService, VALIDATION } from '../../core/auth.service';
+
+const usernameOrEmailValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const value = (control.value ?? '').toString().trim();
+  if (!value) {
+    return null;
+  }
+  const usernameRegex = new RegExp(VALIDATION.usernamePattern);
+  if (usernameRegex.test(value)) {
+    return null;
+  }
+  return Validators.email({ value } as AbstractControl) ? { usernameOrEmail: true } : null;
+};
 
 @Component({
   selector: 'app-login',
@@ -38,7 +50,7 @@ export class LoginComponent {
   private readonly router = inject(Router);
   readonly errorMsg = signal<string | null>(null);
   readonly form = inject(FormBuilder).nonNullable.group({
-    username: ['', [Validators.required, Validators.maxLength(120), Validators.pattern(VALIDATION.loginPattern)]],
+    username: ['', [Validators.required, Validators.maxLength(120), usernameOrEmailValidator]],
     password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(72)]]
   });
 
@@ -46,7 +58,7 @@ export class LoginComponent {
     this.errorMsg.set(null);
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     const raw = this.form.getRawValue();
-    const body = { username: raw.username.trim(), password: raw.password };
+    const body = { username: raw.username.trim(), password: raw.password.trim() };
     this.auth.login(body).subscribe({
       next: res => { this.auth.setSession(res); void this.router.navigate(['/employees']); },
       error: err => this.errorMsg.set(err?.error?.message ?? 'Unable to log in. Demo: admin / admin123 or user1 / user123.')

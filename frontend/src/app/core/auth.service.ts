@@ -11,7 +11,6 @@ export interface Employee { id?: number; username: string; email: string; age: n
 export interface PageEmployee { content: Employee[]; totalElements: number; totalPages: number; size: number; number: number; first?: boolean; last?: boolean; }
 export const VALIDATION = {
   usernamePattern: '^[a-zA-Z0-9_]{3,50}$',
-  loginPattern: '^([a-zA-Z0-9_]{3,50}|[^\\s@]+@[^\\s@]+\\.[^\\s@]+)$',
   mobilePattern: '^[0-9]{10}$'
 } as const;
 

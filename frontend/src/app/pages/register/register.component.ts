@@ -55,7 +55,7 @@ export class RegisterComponent {
     const body = {
       username: raw.username.trim(),
       email: raw.email.trim().toLowerCase(),
-      password: raw.password
+      password: raw.password.trim()
     };
     this.auth.register(body).subscribe({
       next: res => { this.auth.setSession(res); void this.router.navigate(['/employees']); },
