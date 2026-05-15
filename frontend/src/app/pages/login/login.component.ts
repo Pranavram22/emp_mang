@@ -12,7 +12,8 @@ const usernameOrEmailValidator: ValidatorFn = (control: AbstractControl): Valida
   if (usernameRegex.test(value)) {
     return null;
   }
-  return Validators.email({ value } as AbstractControl) ? { usernameOrEmail: true } : null;
+  const emailError = Validators.email({ value } as AbstractControl);
+  return emailError ? { usernameOrEmail: true } : null;
 };
 
 @Component({
@@ -58,7 +59,7 @@ export class LoginComponent {
     this.errorMsg.set(null);
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     const raw = this.form.getRawValue();
-    const body = { username: raw.username.trim(), password: raw.password.trim() };
+    const body = { username: raw.username.trim(), password: raw.password };
     this.auth.login(body).subscribe({
       next: res => { this.auth.setSession(res); void this.router.navigate(['/employees']); },
       error: err => this.errorMsg.set(err?.error?.message ?? 'Unable to log in. Demo: admin / admin123 or user1 / user123.')
