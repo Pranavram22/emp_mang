@@ -257,7 +257,7 @@ Applied on **both** Angular (client) and Spring Boot (server):
 
 Connection string (in `application.properties`):
 ```
-jdbc:h2:file:./data/employeedb;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
+jdbc:h2:file:./data/employeedb;DB_CLOSE_ON_EXIT=FALSE
 ```
 
 ---
@@ -267,7 +267,7 @@ jdbc:h2:file:./data/employeedb;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
 `backend/src/main/resources/application.properties`
 
 ```properties
-spring.datasource.url=jdbc:h2:file:./data/employeedb;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
+spring.datasource.url=jdbc:h2:file:./data/employeedb;DB_CLOSE_ON_EXIT=FALSE
 spring.datasource.username=sa
 spring.datasource.password=
 spring.jpa.hibernate.ddl-auto=update
