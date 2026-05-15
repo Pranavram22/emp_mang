@@ -253,9 +253,9 @@ Applied on **both** Angular (client) and Spring Boot (server):
 | Engine | H2 (local file) |
 | File | `~/.employee-db/employeedb` (`%USERPROFILE%\.employee-db\employeedb` on Windows) |
 | Username | `sa` |
-| Password | Set via `EMPLOYEE_DB_PASSWORD` |
+| Password | Optional (defaults empty) |
 
-> Set `EMPLOYEE_DB_PASSWORD` (for example, `localdev`) before starting the backend.
+> Set `EMPLOYEE_DB_PASSWORD` if you want a protected local database.
 
 Connection string (in `application.properties`):
 ```
@@ -271,7 +271,7 @@ jdbc:h2:file:${user.home}/.employee-db/employeedb
 ```properties
 spring.datasource.url=jdbc:h2:file:${user.home}/.employee-db/employeedb
 spring.datasource.username=sa
-spring.datasource.password=${EMPLOYEE_DB_PASSWORD}
+spring.datasource.password=${EMPLOYEE_DB_PASSWORD:}
 spring.jpa.hibernate.ddl-auto=update
 jwt.secret=${JWT_SECRET:changeme-use-a-long-secret-key-at-least-256-bits-for-hs256-xxxxx}
 jwt.expiration-ms=86400000
@@ -279,7 +279,7 @@ jwt.expiration-ms=86400000
 
 > Set `JWT_SECRET` to a strong value for any non-local environment.
 
-> The backend will fail to start if `EMPLOYEE_DB_PASSWORD` is not set.
+> `${user.home}` is resolved by Spring to your user home directory (for example, `jdbc:h2:file:/home/you/.employee-db/employeedb`).
 > Windows (Command Prompt): `set EMPLOYEE_DB_PASSWORD=localdev`
 > macOS/Linux: `export EMPLOYEE_DB_PASSWORD=localdev`
 
