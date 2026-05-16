@@ -48,6 +48,18 @@ public class EmployeeController {
     this.excelExport = excelExport;
   }
 
+  @GetMapping("/check-username")
+  @Operation(summary = "Check if a username is already taken")
+  public java.util.Map<String, Boolean> checkUsername(@RequestParam String username) {
+    return java.util.Map.of("taken", service.usernameExists(username));
+  }
+
+  @GetMapping("/check-email")
+  @Operation(summary = "Check if an email is already taken")
+  public java.util.Map<String, Boolean> checkEmail(@RequestParam String email) {
+    return java.util.Map.of("taken", service.emailExists(email));
+  }
+
   @GetMapping
   @Operation(summary = "List employees (search, filter, pagination)")
   public Page<Employee> list(

@@ -34,6 +34,9 @@ public class EmployeeService {
     return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Employee not found"));
   }
 
+  public boolean usernameExists(String username) { return repo.existsByUsername(username); }
+  public boolean emailExists(String email)       { return repo.existsByEmail(email); }
+
   // ── Mutations ──────────────────────────────────────────────────────────────
 
   @Transactional

@@ -1,10 +1,12 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, Employee, PageEmployee, VALIDATION } from '../../core/auth.service';
 import { EmployeeService } from '../../core/employee.service';
 import { StatsService } from '../../core/stats.service';
 import { ToastService } from '../../core/toast.service';
+import { switchMap, of } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface ModalState { open: boolean; editingId: number | null; error: string | null; }
 
@@ -15,11 +17,12 @@ interface ModalState { open: boolean; editingId: number | null; error: string | 
   templateUrl: './employees.component.html'
 })
 export class EmployeesComponent implements OnInit {
-  private readonly fb      = inject(FormBuilder);
-  private readonly api     = inject(EmployeeService);
-  private readonly stats   = inject(StatsService);
-  private readonly toast   = inject(ToastService);
-  readonly auth            = inject(AuthService);
+  private readonly fb          = inject(FormBuilder);
+  private readonly api         = inject(EmployeeService);
+  private readonly stats       = inject(StatsService);
+  private readonly toast       = inject(ToastService);
+  private readonly destroyRef  = inject(DestroyRef);
+  readonly auth                = inject(AuthService);
 
   // Page state
   readonly pageData    = signal<PageEmployee | null>(null);
@@ -61,6 +64,36 @@ export class EmployeesComponent implements OnInit {
   ngOnInit(): void {
     this.reload();
     this.stats.departments().subscribe(d => this.departments.set(d));
+
+    const autoFill = () => {
+      if (this.modal().editingId !== null) return;
+      const { firstName, lastName } = this.empForm.getRawValue();
+      const first = (firstName || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      const last  = (lastName  || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      const base  = (first + last).slice(0, 46);
+      if (base.length < 3) return;
+
+      if (this.empForm.controls.email.pristine && first && last) {
+        this.findAvailableEmail(first, last).subscribe(available => {
+          if (this.empForm.controls.email.pristine) {
+            this.empForm.controls.email.setValue(available, { emitEvent: false });
+            this.empForm.controls.email.markAsPristine();
+          }
+        });
+      }
+
+      if (this.empForm.controls.username.pristine) {
+        this.findAvailableUsername(base).subscribe(available => {
+          if (this.empForm.controls.username.pristine) {
+            this.empForm.controls.username.setValue(available, { emitEvent: false });
+            this.empForm.controls.username.markAsPristine();
+          }
+        });
+      }
+    };
+
+    this.empForm.controls.firstName.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(autoFill);
+    this.empForm.controls.lastName.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(autoFill);
   }
 
   // ── Reload ──────────────────────────────────────────────────────────────────
@@ -172,6 +205,20 @@ export class EmployeesComponent implements OnInit {
     const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: filename });
     a.click();
     URL.revokeObjectURL(a.href);
+  }
+
+  private findAvailableUsername(base: string, n = 0): import('rxjs').Observable<string> {
+    const candidate = n === 0 ? base : `${base}${n}`;
+    return this.api.checkUsername(candidate).pipe(
+      switchMap(r => r.taken ? this.findAvailableUsername(base, n + 1) : of(candidate))
+    );
+  }
+
+  private findAvailableEmail(first: string, last: string, n = 0): import('rxjs').Observable<string> {
+    const candidate = n === 0 ? `${first}.${last}@company.com` : `${first}.${last}${n}@company.com`;
+    return this.api.checkEmail(candidate).pipe(
+      switchMap(r => r.taken ? this.findAvailableEmail(first, last, n + 1) : of(candidate))
+    );
   }
 
   private formatErr(p: unknown): string {

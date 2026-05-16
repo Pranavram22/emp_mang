@@ -19,6 +19,14 @@ export class EmployeeService {
   private readonly http = inject(HttpClient);
   private readonly api = environment.apiUrl;
 
+  checkUsername(username: string): Observable<{ taken: boolean }> {
+    return this.http.get<{ taken: boolean }>(`${this.api}/api/employees/check-username`, { params: { username } });
+  }
+
+  checkEmail(email: string): Observable<{ taken: boolean }> {
+    return this.http.get<{ taken: boolean }>(`${this.api}/api/employees/check-email`, { params: { email } });
+  }
+
   list(p: EmployeeListParams): Observable<PageEmployee> {
     let params = new HttpParams()
       .set('page', String(p.page))
