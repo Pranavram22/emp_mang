@@ -95,8 +95,11 @@
               @for (e of pageData()!.content; track e.id) {
                 <tr>
                   <td class="text-muted">{{ e.id }}</td>
-                  <td><a href="#" class="text-dark fw-bold text-decoration-none"
-                         (click)="$event.preventDefault(); openView(e)">{{ e.firstName }} {{ e.lastName }}</a></td>
+                  <td>
+                    <a href="#" class="text-dark fw-bold text-decoration-none"
+                       (click)="$event.preventDefault(); openView(e)">{{ e.firstName }} {{ e.lastName }}</a>
+                    @if (isNew(e)) { <span class="badge bg-success ms-1" style="font-size:9px;">New</span> }
+                  </td>
                   <td>{{ e.username }}</td>
                   <td><span class="copy-cell" title="Click to copy" (click)="copy(e.email, 'Email')">{{ e.email }}</span></td>
                   <td>{{ e.age }}</td>

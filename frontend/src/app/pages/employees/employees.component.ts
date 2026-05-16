@@ -5,7 +5,7 @@ import { AuthService, Employee, PageEmployee, VALIDATION } from '../../core/auth
 import { EmployeeService } from '../../core/employee.service';
 import { StatsService } from '../../core/stats.service';
 import { ToastService } from '../../core/toast.service';
-import { switchMap, of } from 'rxjs';
+import { switchMap, of, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface ModalState { open: boolean; editingId: number | null; error: string | null; }
@@ -94,6 +94,11 @@ export class EmployeesComponent implements OnInit {
 
     this.empForm.controls.firstName.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(autoFill);
     this.empForm.controls.lastName.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(autoFill);
+
+    // Live search — auto-apply 450ms after user stops typing in the search box
+    this.filterForm.controls.q.valueChanges.pipe(
+      debounceTime(450), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.applyFilters());
   }
 
   // ── Reload ──────────────────────────────────────────────────────────────────
@@ -205,6 +210,11 @@ export class EmployeesComponent implements OnInit {
     const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: filename });
     a.click();
     URL.revokeObjectURL(a.href);
+  }
+
+  isNew(e: Employee): boolean {
+    if (!e.createdAt) return false;
+    return (Date.now() - new Date(e.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000;
   }
 
   private findAvailableUsername(base: string, n = 0): import('rxjs').Observable<string> {
