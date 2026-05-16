@@ -35,7 +35,7 @@ import { AuthService } from '../../core/auth.service';
         <div class="card p-3">
           <div class="fs-xs text-muted mb-1">HIGHEST PAID EMPLOYEE</div>
           <div style="font-size:16px;font-weight:bold;">{{ stats()!.highestPaidName }}</div>
-          <div class="fs-sm text-secondary mt-1">Salary: {{ stats()!.highestSalary | number:'1.0-0' }}</div>
+          <div class="fs-sm text-secondary mt-1">Salary: {{ '$' + (stats()!.highestSalary | number:'1.0-0') }}</div>
         </div>
       </div>
       <div class="col-md-6">
@@ -108,7 +108,7 @@ export class DashboardComponent implements OnInit {
     return [
       { label: 'Total Employees',  value: s.totalEmployees },
       { label: 'Departments',      value: s.totalDepartments },
-      { label: 'Avg Salary',       value: new Intl.NumberFormat().format(Math.round(s.avgSalary)) },
+      { label: 'Avg Salary',       value: '$' + new Intl.NumberFormat().format(Math.round(s.avgSalary)) },
       { label: 'Added This Month', value: s.addedThisMonth }
     ];
   }

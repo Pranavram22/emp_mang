@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService, Employee, PageEmployee, VALIDATION } from '../../core/auth.service';
@@ -41,6 +41,11 @@ export class EmployeesComponent implements OnInit {
   });
 
   readonly sortControl = this.fb.nonNullable.control('id,asc');
+
+  readonly activeFilterCount = computed(() => {
+    const f = this.filterForm.getRawValue();
+    return [f.q, f.department, f.minSalary, f.maxSalary].filter(v => v !== null && v !== '' && v !== undefined).length;
+  });
 
   readonly empForm = this.fb.nonNullable.group({
     username:   ['', [Validators.required, Validators.pattern(VALIDATION.usernamePattern)]],

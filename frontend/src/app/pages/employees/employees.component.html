@@ -55,7 +55,14 @@
           </select>
         </div>
         <div class="col-md-1 d-flex gap-1" style="align-self:flex-end;">
-          <button type="submit" class="btn btn-dark btn-sm flex-grow-1">Search</button>
+          <button type="submit" class="btn btn-dark btn-sm flex-grow-1 position-relative">
+            Search
+            @if (activeFilterCount() > 0) {
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:9px;">
+                {{ activeFilterCount() }}
+              </span>
+            }
+          </button>
           <button type="button" class="btn btn-outline-secondary btn-sm"
             (click)="filterForm.reset({ q:'', department:'', minSalary:null, maxSalary:null }); applyFilters()">✕</button>
         </div>
@@ -98,7 +105,7 @@
                     @if (e.department) { <span class="dept-tag">{{ e.department }}</span> }
                     @else { <span class="text-muted">—</span> }
                   </td>
-                  <td>{{ e.salary != null ? (e.salary | number:'1.0-0') : '—' }}</td>
+                  <td>{{ e.salary != null ? ('$' + (e.salary | number:'1.0-0')) : '—' }}</td>
                   <td>
                     <button class="btn btn-sm btn-outline-secondary me-1" (click)="openView(e)">View</button>
                     @if (auth.isAdmin()) {
@@ -158,7 +165,7 @@
                   ['Age',        view()!.age],
                   ['Mobile',     view()!.mobile],
                   ['Department', view()!.department || '—'],
-                  ['Salary',     view()!.salary != null ? view()!.salary : '—'],
+                  ['Salary',     view()!.salary != null ? ('$' + view()!.salary) : '—'],
                   ['Added On',   view()!.createdAt || '—'],
                   ['Added By',   view()!.createdBy || '—']
                 ]; track $index) {

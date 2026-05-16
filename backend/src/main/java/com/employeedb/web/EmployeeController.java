@@ -91,7 +91,7 @@ public class EmployeeController {
       @RequestParam(required = false) String q,
       @RequestParam(required = false) String department,
       @RequestParam(required = false) BigDecimal minSalary,
-      @RequestParam(required = false) BigDecimal maxSalary) {
+      @RequestParam(required = false) BigDecimal maxSalary) throws IOException {
     List<Employee> rows = service.findAllForExport(q, department, minSalary, maxSalary);
     byte[] bytes = pdfExport.build(rows);
     return ResponseEntity.ok()

@@ -92,7 +92,7 @@ export class AppComponent {
     confirm: ['', Validators.required]
   });
 
-  logout(): void { this.auth.logout(); void this.router.navigate(['/login']); }
+  logout(): void { this.toast.info('You have been logged out'); this.auth.logout(); void this.router.navigate(['/login']); }
 
   openChangePw(): void  { this.pwForm.reset(); this.pw.set({ open: true, loading: false, error: null }); }
   closeChangePw(): void { this.pw.update(s => ({ ...s, open: false })); }
