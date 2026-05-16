@@ -7,7 +7,6 @@ import { StatsService } from '../../core/stats.service';
 import { ToastService } from '../../core/toast.service';
 
 interface ModalState { open: boolean; editingId: number | null; error: string | null; }
-interface ImportState { open: boolean; loading: boolean; file: File | null; result: { imported: number; skipped: number; errors: string[] } | null; }
 
 @Component({
   selector: 'app-employees',
@@ -31,9 +30,8 @@ export class EmployeesComponent implements OnInit {
   readonly pageSizeOptions = [5, 10, 25, 50];
 
   // Modal state
-  readonly modal  = signal<ModalState>({ open: false, editingId: null, error: null });
-  readonly view   = signal<Employee | null>(null);
-  readonly imp    = signal<ImportState>({ open: false, loading: false, file: null, result: null });
+  readonly modal = signal<ModalState>({ open: false, editingId: null, error: null });
+  readonly view  = signal<Employee | null>(null);
 
   readonly filterForm = this.fb.nonNullable.group({
     q:          [''],
@@ -138,43 +136,6 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
-  // ── Import modal ────────────────────────────────────────────────────────────
-
-  openImport(): void  { this.imp.set({ open: true, loading: false, file: null, result: null }); }
-  closeImport(): void {
-    const imported = this.imp().result?.imported;
-    this.imp.update(s => ({ ...s, open: false }));
-    if (imported) this.reload();
-  }
-
-  onImportFile(ev: Event): void {
-    const file = (ev.target as HTMLInputElement).files?.[0] ?? null;
-    this.imp.update(s => ({ ...s, file, result: null }));
-  }
-
-  submitImport(): void {
-    const file = this.imp().file;
-    if (!file) return;
-    this.imp.update(s => ({ ...s, loading: true }));
-    this.api.importExcel(file).subscribe({
-      next: res => {
-        this.imp.update(s => ({ ...s, loading: false, result: res }));
-        if (res.imported > 0) this.toast.success(`${res.imported} employee(s) imported`);
-        if (res.skipped  > 0) this.toast.error(`${res.skipped} row(s) skipped`);
-      },
-      error: err => {
-        this.imp.update(s => ({ ...s, loading: false }));
-        this.toast.error(err?.error?.message ?? 'Import failed');
-      }
-    });
-  }
-
-  downloadTemplate(): void {
-    this.api.downloadImportTemplate().subscribe({
-      next: blob => this.saveBlob(blob, 'employee_import_template.xlsx'),
-      error: () => this.toast.error('Failed to download template')
-    });
-  }
 
   // ── Exports ─────────────────────────────────────────────────────────────────
 

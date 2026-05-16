@@ -8,11 +8,10 @@
     </div>
     <div class="d-flex gap-2">
       @if (auth.isAdmin()) {
-        <button class="btn btn-outline-secondary btn-sm" (click)="openImport()">Import Excel</button>
         <button class="btn btn-outline-secondary btn-sm" (click)="exportPdf()">Export PDF</button>
         <button class="btn btn-outline-secondary btn-sm" (click)="exportExcel()">Export Excel</button>
+        <button class="btn btn-dark btn-sm" (click)="openForm()">+ Add Employee</button>
       }
-      <button class="btn btn-dark btn-sm" (click)="openForm()">+ Add Employee</button>
     </div>
   </div>
 
@@ -102,8 +101,8 @@
                   <td>{{ e.salary != null ? (e.salary | number:'1.0-0') : '—' }}</td>
                   <td>
                     <button class="btn btn-sm btn-outline-secondary me-1" (click)="openView(e)">View</button>
-                    <button class="btn btn-sm btn-outline-primary me-1" (click)="openForm(e)">Edit</button>
                     @if (auth.isAdmin()) {
+                      <button class="btn btn-sm btn-outline-primary me-1" (click)="openForm(e)">Edit</button>
                       <button class="btn btn-sm btn-outline-danger" (click)="deleteRow(e)">Delete</button>
                     }
                   </td>
@@ -139,70 +138,6 @@
     </div>
   }
 
-  <!-- ── Import Modal ────────────────────────────────────────────────────── -->
-  @if (imp().open) {
-    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog" (mousedown)="closeImport()">
-      <div class="modal-dialog modal-dialog-centered" (mousedown)="$event.stopPropagation()">
-        <div class="modal-content">
-          <div class="modal-header modal-header-dark">
-            <h5 class="modal-title text-white">Import Employees from Excel</h5>
-            <button type="button" class="btn-close btn-close-white" (click)="closeImport()"></button>
-          </div>
-          <div class="modal-body">
-            <div class="import-hint">
-              <strong>How to import:</strong>
-              <ol>
-                <li>Download the template, fill in one row per employee</li>
-                <li>Required: Username, Email, First name, Last name, Age, Mobile</li>
-                <li>Upload the filled file below</li>
-              </ol>
-              <button class="btn btn-outline-secondary btn-sm mt-1" (click)="downloadTemplate()">Download Template (.xlsx)</button>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Select Excel File (.xlsx)</label>
-              <input type="file" class="form-control form-control-sm" accept=".xlsx" (change)="onImportFile($event)" />
-              @if (imp().file) {
-                <small class="text-muted mt-1 d-block">Selected: {{ imp().file!.name }}</small>
-              }
-            </div>
-
-            @if (imp().result) {
-              <div class="import-result">
-                <div class="d-flex gap-3 mb-2">
-                  <div class="import-stat import-stat-ok">
-                    <span class="import-stat-num">{{ imp().result!.imported }}</span>
-                    <span class="import-stat-lbl">Imported</span>
-                  </div>
-                  <div class="import-stat import-stat-skip">
-                    <span class="import-stat-num">{{ imp().result!.skipped }}</span>
-                    <span class="import-stat-lbl">Skipped</span>
-                  </div>
-                </div>
-                @if (imp().result!.errors.length > 0) {
-                  <div class="import-errors">
-                    @for (err of imp().result!.errors; track $index) {
-                      <div class="import-error-row">{{ err }}</div>
-                    }
-                  </div>
-                }
-              </div>
-            }
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary btn-sm" (click)="closeImport()">
-              {{ imp().result?.imported ? 'Close & Refresh' : 'Cancel' }}
-            </button>
-            <button class="btn btn-dark btn-sm" (click)="submitImport()" [disabled]="!imp().file || imp().loading">
-              {{ imp().loading ? 'Importing...' : 'Import' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-backdrop fade show"></div>
-  }
-
   <!-- ── View Modal ─────────────────────────────────────────────────────── -->
   @if (view()) {
     <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog" (mousedown)="closeView()">
@@ -236,7 +171,9 @@
             </table>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-outline-primary btn-sm" (click)="openForm(view()!); closeView()">Edit</button>
+            @if (auth.isAdmin()) {
+              <button class="btn btn-outline-primary btn-sm" (click)="openForm(view()!); closeView()">Edit</button>
+            }
             <button class="btn btn-secondary btn-sm" (click)="closeView()">Close</button>
           </div>
         </div>

@@ -56,18 +56,6 @@ export class EmployeeService {
     return this.http.get(`${this.api}/api/employees/export/pdf`, { params, responseType: 'blob' });
   }
 
-  downloadImportTemplate(): Observable<Blob> {
-    return this.http.get(`${this.api}/api/employees/import/template`, { responseType: 'blob' });
-  }
-
-  importExcel(file: File): Observable<{ imported: number; skipped: number; errors: string[] }> {
-    const form = new FormData();
-    form.append('file', file);
-    return this.http.post<{ imported: number; skipped: number; errors: string[] }>(
-      `${this.api}/api/employees/import/excel`, form
-    );
-  }
-
   exportExcel(q?: string, department?: string, minSalary?: number | null, maxSalary?: number | null): Observable<Blob> {
     let params = new HttpParams();
     if (q?.trim()) params = params.set('q', q.trim());

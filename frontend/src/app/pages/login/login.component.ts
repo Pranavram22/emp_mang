@@ -43,7 +43,6 @@ const usernameOrEmailValidator: ValidatorFn = (control: AbstractControl): Valida
   </form>
   <hr />
   <p class="text-center mb-1 fs-sm">No account? <a routerLink="/register">Register here</a></p>
-  <p class="text-center text-muted mb-0" style="font-size:11px;">Test: admin / admin123 &nbsp;|&nbsp; user1 / user123</p>
 </div>`
 })
 export class LoginComponent {
